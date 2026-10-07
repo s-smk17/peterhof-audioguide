@@ -1,0 +1,20 @@
+export function formatTime(seconds: number) {
+  const total = Math.max(0, Math.floor(seconds || 0));
+  const minutes = Math.floor(total / 60);
+
+  return `${minutes}:${String(total % 60).padStart(2, '0')}`;
+}
+
+export function formatDistance(meters: number) {
+  return meters < 1000
+    ? `${Math.round(meters)} м`
+    : `${(meters / 1000).toFixed(1).replace('.', ',')} км`;
+}
+
+export function formatDuration(seconds: number) {
+  const minutes = Math.max(1, Math.round(seconds / 60));
+
+  return minutes < 60
+    ? `${minutes} мин`
+    : `${Math.floor(minutes / 60)} ч ${minutes % 60} мин`;
+}

@@ -1,5 +1,8 @@
 import { registerRootComponent } from 'expo';
 
+// Регистрирует фоновую задачу GPS — должно выполниться до запуска App
+import './src/location/locationService';
+
 import App from './App';
 
 // registerRootComponent calls AppRegistry.registerComponent('main', () => App);
