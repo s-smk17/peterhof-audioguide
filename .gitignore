@@ -42,3 +42,6 @@ yarn-error.*
 
 # копия воркера карты, создаётся при npm install (scripts/copy-maplibre-worker.mjs)
 public/maplibre-gl-worker.mjs
+
+# скриншот из примера автотеста в README
+guide.png
