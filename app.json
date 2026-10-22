@@ -24,6 +24,13 @@
       "package": "com.s_smk17.peterhofaudioguide"
     },
     "web": {
+      "name": "Аудиогид Петергоф",
+      "shortName": "Петергоф",
+      "description": "Аудиогид по маршруту автобуса 343Э: Ломоносов — Петергоф — метро «Проспект Ветеранов»",
+      "lang": "ru",
+      "themeColor": "#0B1217",
+      "backgroundColor": "#0B1217",
+      "output": "single",
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
