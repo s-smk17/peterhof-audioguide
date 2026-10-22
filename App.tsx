@@ -19,11 +19,16 @@ import HomeScreen from './src/screens/HomeScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
 import StopsScreen from './src/screens/StopsScreen';
 import {
+  EMPTY_TRIP,
   loadProgress,
+  loadTrip,
   saveProgress,
+  saveTrip,
   SettingsProvider,
   TRIGGER_DISTANCE,
+  TRIP_GAP_MS,
   useSettings,
+  type Trip,
 } from './src/settings';
 import { ThemeProvider, useTheme } from './src/theme';
 
@@ -58,15 +63,21 @@ function AppContent() {
   const [mapOpen, setMapOpen] = useState(false);
   const [completed, setCompleted] = useState<number[]>([]);
   const completedRef = useRef<number[]>([]);
+  const tripRef = useRef<Trip>(EMPTY_TRIP);
 
   const audio = useGuideAudio(settings.playbackRate);
 
-  // Прогресс переживает перезапуск приложения
+  // Прогресс и текущая поездка переживают перезапуск приложения
   useEffect(() => {
     loadProgress().then((saved) => {
       const merged = [...new Set([...saved, ...completedRef.current])];
       completedRef.current = merged;
       setCompleted(merged);
+    });
+
+    loadTrip().then((saved) => {
+      // Пока читали, могли уже доехать до остановки — тогда эта поездка свежее
+      if (saved.updatedAt > tripRef.current.updatedAt) tripRef.current = saved;
     });
   }, []);
 
@@ -76,12 +87,31 @@ function AppContent() {
     saveProgress(next);
   };
 
+  const setTrip = (next: Trip) => {
+    tripRef.current = next;
+    saveTrip(next);
+  };
+
   const tracking = useRouteTracking({
     triggerDistance: TRIGGER_DISTANCE[settings.triggerTiming],
-    onStopReached: (index) => {
-      if (completedRef.current.includes(index)) return;
+    onStopReached: (index, direction) => {
+      const now = Date.now();
+      let trip = tripRef.current;
 
-      setProgress([...completedRef.current, index]);
+      // Давно не было остановок или поехали обратно — это новая поездка,
+      // и все рассказы снова запускаются сами
+      if (now - trip.updatedAt > TRIP_GAP_MS || trip.direction !== direction) {
+        trip = { played: [], direction, updatedAt: now };
+      }
+
+      if (trip.played.includes(index)) return;
+
+      setTrip({ played: [...trip.played, index], direction, updatedAt: now });
+
+      if (!completedRef.current.includes(index)) {
+        setProgress([...completedRef.current, index]);
+      }
+
       audio.arriveAt(index, settings.autoPlay);
     },
     onLeftRoute: () => {
@@ -124,7 +154,10 @@ function AppContent() {
       screen = (
         <SettingsScreen
           tracking={tracking}
-          onResetProgress={() => setProgress([])}
+          onResetProgress={() => {
+            setProgress([]);
+            setTrip(EMPTY_TRIP);
+          }}
         />
       );
       break;

@@ -86,7 +86,11 @@ export function useWalkingRoute(
       `${ROUTER_URL}/${from.longitude},${from.latitude};` +
       `${to.longitude},${to.latitude}?overview=full&geometries=geojson`;
 
-    fetch(url)
+    // Сервер может «зависнуть» — тогда через 10 с рисуем прямую линию
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 10_000);
+
+    fetch(url, { signal: controller.signal })
       .then((response) => response.json())
       .then((json) => {
         const best = json?.routes?.[0];
@@ -102,7 +106,8 @@ export function useWalkingRoute(
       })
       .catch(() => {
         if (id === requestId.current) setRoute(straightLine(from, to));
-      });
+      })
+      .finally(() => clearTimeout(timer));
   }, [from?.latitude, from?.longitude, to?.latitude, to?.longitude]);
 
   return route;

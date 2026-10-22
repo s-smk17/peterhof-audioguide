@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { AppState } from 'react-native';
 import type { LocationObject } from 'expo-location';
 
 import { projectOnRoute, STOP_ALONG } from './routeGeometry';
@@ -44,7 +45,8 @@ export type RouteTrackingState = {
 type Handlers = {
   /** За сколько метров вдоль маршрута до остановки она срабатывает */
   triggerDistance: number;
-  onStopReached: (index: number) => void;
+  /** direction — куда едем: 1 к метро, −1 к Ломоносову */
+  onStopReached: (index: number, direction: 1 | -1) => void;
   onLeftRoute: () => void;
   onReturnedToRoute: () => void;
 };
@@ -95,6 +97,9 @@ export function useRouteTracking(handlers: Handlers) {
   const lastStopRef = useRef<number | null>(null);
   const directionRef = useRef<1 | -1>(1);
   const directionAnchorRef = useRef<number | null>(null);
+  // Объявляли «вы не на маршруте» — тогда при возврате скажем «снова на маршруте»
+  const announcedLeftRef = useRef(false);
+  const modeRef = useRef<RouteTrackingState['mode']>('starting');
 
   const handleLocation = useCallback((location: LocationObject) => {
     const { latitude, longitude } = location.coords;
@@ -115,7 +120,11 @@ export function useRouteTracking(handlers: Handlers) {
 
     // Направление движения: смотрим, куда сместились вдоль линии
     // хотя бы на 30 м — иначе это шум GPS
-    if (directionAnchorRef.current == null || offset > OFF_ROUTE_METERS) {
+    if (offset > OFF_ROUTE_METERS) {
+      // Вне маршрута направление не определить. Сравнивать первую отметку
+      // после возврата с точкой в стороне нельзя — получится ложный разворот.
+      directionAnchorRef.current = null;
+    } else if (directionAnchorRef.current == null) {
       directionAnchorRef.current = along;
     } else if (Math.abs(along - directionAnchorRef.current) > 30) {
       directionRef.current = along > directionAnchorRef.current ? 1 : -1;
@@ -157,13 +166,22 @@ export function useRouteTracking(handlers: Handlers) {
 
       if (status === 'off-route') {
         lastStopRef.current = null;
-        handlersRef.current.onLeftRoute();
-      } else if (previousStatus === 'off-route') {
+
+        // Только если человек ехал по маршруту и сошёл с него. При запуске
+        // приложения дома «вы не на маршруте» звучать не должно.
+        if (previousStatus === 'on-route') {
+          announcedLeftRef.current = true;
+          handlersRef.current.onLeftRoute();
+        }
+      } else if (previousStatus === 'off-route' && announcedLeftRef.current) {
+        announcedLeftRef.current = false;
         handlersRef.current.onReturnedToRoute();
       }
     }
 
-    if (status !== 'on-route') return;
+    // Сход ещё не подтверждён, но человек уже далеко от линии (или GPS
+    // «прыгнул») — по такой отметке остановку не засчитываем
+    if (status !== 'on-route' || effectiveOffset > OFF_ROUTE_METERS) return;
 
     const stop = findStopNearby(
       along,
@@ -173,20 +191,40 @@ export function useRouteTracking(handlers: Handlers) {
 
     if (stop !== lastStopRef.current) {
       lastStopRef.current = stop;
-      if (stop != null) handlersRef.current.onStopReached(stop);
+      if (stop != null) {
+        handlersRef.current.onStopReached(stop, directionRef.current);
+      }
     }
   }, []);
 
   const start = useCallback(async () => {
+    modeRef.current = 'starting';
     setState((previous) => ({ ...previous, mode: 'starting' }));
 
     try {
       const { mode, approximate } = await startTracking();
+      modeRef.current = mode;
       setState((previous) => ({ ...previous, mode, approximate }));
     } catch {
+      modeRef.current = 'disabled';
       setState((previous) => ({ ...previous, mode: 'disabled' }));
     }
   }, []);
+
+  // Вернулись в приложение (например, из настроек, где включили геолокацию) —
+  // пробуем снова, без нажатия «Повторить»
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (appState) => {
+      if (
+        appState === 'active' &&
+        (modeRef.current === 'denied' || modeRef.current === 'disabled')
+      ) {
+        start();
+      }
+    });
+
+    return () => subscription.remove();
+  }, [start]);
 
   useEffect(() => {
     const unsubscribe = subscribeToLocation(handleLocation);

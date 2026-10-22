@@ -8,6 +8,7 @@ import {
   Marker,
   type CameraRef,
   type LngLatBounds,
+  type StyleSpecification,
 } from '@maplibre/maplibre-react-native';
 
 import { routePoints } from '../data/route';
@@ -47,6 +48,18 @@ const ROUTE_BOUNDS = boundsOf(
   ROUTE_SHAPE.map(([lat, lon]) => [lon, lat])
 );
 
+// Если сервер карт недоступен, рисуем маршрут и остановки на однотонном
+// фоне — лучше, чем пустая карта без линии маршрута
+function fallbackStyle(background: string): StyleSpecification {
+  return {
+    version: 8,
+    sources: {},
+    layers: [
+      { id: 'background', type: 'background', paint: { 'background-color': background } },
+    ],
+  };
+}
+
 
 export default function RouteMap({
   tracking,
@@ -65,7 +78,18 @@ export default function RouteMap({
   const WARN = colors.warn;
   const camera = useRef<CameraRef>(null);
   const [follow, setFollow] = useState(true);
+  const [styleFailed, setStyleFailed] = useState(false);
   const { position, status } = tracking;
+
+  // Сменили тему — пробуем загрузить её настоящий стиль заново
+  useEffect(() => setStyleFailed(false), [colors.mapStyle]);
+
+  // Один объект на тему: новый объект на каждой перерисовке заставил бы
+  // карту перезагружать стиль
+  const mapStyle = useMemo(
+    () => (styleFailed ? fallbackStyle(colors.mapBg) : colors.mapStyle),
+    [styleFailed, colors.mapBg, colors.mapStyle]
+  );
 
   const stops = useMemo<GeoJSON.FeatureCollection<GeoJSON.Point>>(
     () => ({
@@ -148,7 +172,8 @@ export default function RouteMap({
     >
       <Map
         style={StyleSheet.absoluteFill}
-        mapStyle={colors.mapStyle}
+        mapStyle={mapStyle}
+        onDidFailLoadingMap={() => setStyleFailed(true)}
         logo={false}
         attribution
         attributionPosition={{ bottom: 6, left: 8 }}
