@@ -21,7 +21,7 @@ export default function MiniPlayer({
   const progress = duration > 0 ? Math.min(currentTime / duration, 1) : 0;
 
   return (
-    <Glass style={styles.player}>
+    <Glass floating style={styles.player}>
       <Pressable style={styles.body} onPress={onOpen}>
         <View style={styles.artwork}>
           <Image

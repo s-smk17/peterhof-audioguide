@@ -1,10 +1,11 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
-import maplibregl, {
-  type GeoJSONSource,
-  type LngLatBoundsLike,
-  type Map as MapLibreMap,
-  type StyleSpecification,
+import * as maplibregl from 'maplibre-gl';
+import type {
+  GeoJSONSource,
+  LngLatBoundsLike,
+  Map as MapLibreMap,
+  StyleSpecification,
 } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
@@ -15,6 +16,13 @@ import type { RouteMapProps as Props } from './routeMapTypes';
 
 // Веб-версия карты: тот же движок MapLibre, но его JS-сборка maplibre-gl
 // вместо нативного модуля. Тайлы и стиль — те же, из темы.
+
+// Воркер карты — отдельный файл рядом с сайтом (его кладёт в public/ скрипт
+// scripts/copy-maplibre-worker.mjs). Адрес считаем от страницы, чтобы он был
+// верным и локально, и на GitHub Pages в подпапке.
+if (typeof document !== 'undefined') {
+  maplibregl.setWorkerUrl(new URL('maplibre-gl-worker.mjs', document.baseURI).href);
+}
 
 type Bounds = [number, number, number, number];
 

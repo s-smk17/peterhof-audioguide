@@ -37,7 +37,7 @@ export default function BottomNav({
     ];
 
   return (
-    <Glass style={styles.bar}>
+    <Glass floating style={styles.bar}>
       {items.map((item) => {
         const active = tab === item.id;
 

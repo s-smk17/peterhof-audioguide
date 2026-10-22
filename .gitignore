@@ -39,3 +39,6 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# копия воркера карты, создаётся при npm install (scripts/copy-maplibre-worker.mjs)
+public/maplibre-gl-worker.mjs

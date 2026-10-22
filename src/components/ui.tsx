@@ -1,5 +1,6 @@
 import React, { type ReactNode } from 'react';
 import {
+  Platform,
   Pressable,
   StyleSheet,
   Text,
@@ -14,12 +15,22 @@ import { makeStyles, useTheme } from '../theme';
 export function Glass({
   children,
   style,
+  floating = false,
 }: {
   children: ReactNode;
   style?: StyleProp<ViewStyle>;
+  /** Плавает поверх прокрутки (нижняя панель, мини-плеер) */
+  floating?: boolean;
 }) {
   const colors = useTheme();
   const styles = useStyles();
+
+  // В браузере размытие фона (backdrop-filter) пересчитывается на каждом
+  // кадре прокрутки и тормозит её на телефонах. Карточкам в списке оно почти
+  // ничего не даёт — фон и так полупрозрачный. Оставляем только плавающим.
+  if (Platform.OS === 'web' && !floating) {
+    return <View style={[styles.glass, style]}>{children}</View>;
+  }
 
   return (
     <BlurView intensity={30} tint={colors.scheme} style={[styles.glass, style]}>

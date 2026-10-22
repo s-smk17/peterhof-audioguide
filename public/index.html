@@ -18,12 +18,22 @@
 
     <!-- The `react-native-web` recommended style reset: https://necolas.github.io/react-native-web/docs/setup/#root-element -->
     <style id="expo-reset">
+      /* Страница целиком не двигается: прокручивается только список внутри.
+         Иначе на iPhone у края списка «пружинит» вся страница вместе с
+         нижней панелью вкладок. */
       html,
       body {
+        position: fixed;
+        inset: 0;
         height: 100%;
+        overflow: hidden;
+        overscroll-behavior: none;
+      }
+      /* Прокрутка списка не передаётся странице */
+      #root * {
+        overscroll-behavior: contain;
       }
       body {
-        overflow: hidden;
         /* Цвет фона темы, чтобы при загрузке не мигало белым */
         background: #0b1217;
         -webkit-tap-highlight-color: transparent;
