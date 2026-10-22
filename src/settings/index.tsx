@@ -96,3 +96,34 @@ export async function loadProgress(): Promise<number[]> {
 export function saveProgress(completed: number[]) {
   AsyncStorage.setItem(PROGRESS_KEY, JSON.stringify(completed)).catch(() => {});
 }
+
+// Текущая поездка: какие рассказы уже включались сами. Отдельно от прогресса,
+// чтобы на обратном пути и в следующий раз остановки снова звучали.
+export type Trip = {
+  /** Остановки, рассказ о которых уже запускался в этой поездке */
+  played: number[];
+  /** Куда едем: 1 — к метро, −1 — к Ломоносову */
+  direction: 1 | -1;
+  /** Когда доехали до последней остановки, мс */
+  updatedAt: number;
+};
+
+/** Столько времени без новых остановок — и следующая поездка считается новой */
+export const TRIP_GAP_MS = 60 * 60 * 1000;
+
+export const EMPTY_TRIP: Trip = { played: [], direction: 1, updatedAt: 0 };
+
+const TRIP_KEY = 'trip:v1';
+
+export async function loadTrip(): Promise<Trip> {
+  try {
+    const raw = await AsyncStorage.getItem(TRIP_KEY);
+    return raw ? { ...EMPTY_TRIP, ...JSON.parse(raw) } : EMPTY_TRIP;
+  } catch {
+    return EMPTY_TRIP;
+  }
+}
+
+export function saveTrip(trip: Trip) {
+  AsyncStorage.setItem(TRIP_KEY, JSON.stringify(trip)).catch(() => {});
+}
