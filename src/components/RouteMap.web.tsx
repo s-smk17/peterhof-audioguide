@@ -4,6 +4,7 @@ import maplibregl, {
   type GeoJSONSource,
   type LngLatBoundsLike,
   type Map as MapLibreMap,
+  type StyleSpecification,
 } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
@@ -49,6 +50,20 @@ const EMPTY: GeoJSON.FeatureCollection = {
   type: 'FeatureCollection',
   features: [],
 };
+
+// Если сервер карт не ответил, рисуем маршрут и остановки на однотонном фоне —
+// лучше, чем пустой прямоугольник без линии маршрута
+const STYLE_TIMEOUT_MS = 8000;
+
+function fallbackStyle(background: string): StyleSpecification {
+  return {
+    version: 8,
+    sources: {},
+    layers: [
+      { id: 'background', type: 'background', paint: { 'background-color': background } },
+    ],
+  };
+}
 
 type Layers = {
   stops: GeoJSON.FeatureCollection<GeoJSON.Point>;
@@ -265,9 +280,28 @@ export default function RouteMap({
     map.touchZoomRotate.disableRotation();
     map.keyboard.disableRotation();
 
-    map.on('load', () => {
+    // style.load, а не load: срабатывает и после переключения на запасной стиль
+    let styleReady = false;
+    let usedFallback = false;
+
+    const useFallback = () => {
+      if (styleReady || usedFallback) return;
+      usedFallback = true;
+      map.setStyle(fallbackStyle(colors.mapBg));
+    };
+
+    const styleTimer = setTimeout(useFallback, STYLE_TIMEOUT_MS);
+
+    map.on('style.load', () => {
+      styleReady = true;
+      clearTimeout(styleTimer);
       syncLayers(map, layersRef.current);
       setLoaded(true);
+    });
+
+    // Ошибка до загрузки стиля — значит, не скачался сам стиль
+    map.on('error', () => {
+      if (!styleReady) useFallback();
     });
 
     // Человек сам двигает карту — перестаём следовать за ним
@@ -280,6 +314,7 @@ export default function RouteMap({
     mapRef.current = map;
 
     return () => {
+      clearTimeout(styleTimer);
       mapRef.current = null;
       setLoaded(false);
       map.remove();

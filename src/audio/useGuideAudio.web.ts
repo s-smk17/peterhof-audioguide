@@ -110,6 +110,9 @@ export function useGuideAudio(playbackRate: number): GuideAudio {
     if (first && !main.src) main.src = first;
 
     const onPlay = () => {
+      // Запуск без нашей команды — это «разблокировка» звука первым
+      // касанием (см. ниже): мини-плеер из-за неё показывать не нужно
+      if (!wantPlayRef.current) return;
       setPlaying(true);
       setStarted(true);
     };

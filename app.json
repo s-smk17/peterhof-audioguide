@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "peterhof-audioguide",
+    "name": "Аудиогид Петергоф",
     "slug": "peterhof-audioguide",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -48,7 +48,8 @@
           "locationAlwaysAndWhenInUsePermission": "Разрешите геолокацию «Всегда», чтобы аудиогид рассказывал о точках маршрута, даже когда телефон в кармане.",
           "isIosBackgroundLocationEnabled": true,
           "isAndroidBackgroundLocationEnabled": true,
-          "isAndroidForegroundServiceEnabled": true
+          "isAndroidForegroundServiceEnabled": true,
+          "locationAlwaysPermission": "Разрешите геолокацию «Всегда», чтобы аудиогид рассказывал о точках маршрута, даже когда телефон в кармане."
         }
       ],
       "expo-image",

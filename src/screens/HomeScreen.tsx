@@ -3,7 +3,7 @@ import { Dimensions, Pressable, ScrollView, StyleSheet, Text, View } from 'react
 import { Image } from 'expo-image';
 
 import type { GuideAudio } from '../audio/useGuideAudio';
-import { useScrollContentStyle } from '../components/layout';
+import { MAX_CONTENT_WIDTH, useScrollContentStyle } from '../components/layout';
 import MapView from '../components/MapView';
 import NavigationInfo from '../components/NavigationInfo';
 import { Glass, Icon, TopBar } from '../components/ui';
@@ -13,7 +13,7 @@ import type { RouteTrackingState } from '../location/useRouteTracking';
 import { makeStyles, useTheme, type Palette } from '../theme';
 import { formatDistance } from '../utils/format';
 
-const { width } = Dimensions.get('window');
+const width = Math.min(Dimensions.get('window').width, MAX_CONTENT_WIDTH);
 
 type RouteBadge = { label: string; color: string; hint: string };
 
