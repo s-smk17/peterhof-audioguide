@@ -13,7 +13,7 @@
 > Все команды ниже выполняются из папки `typescript`: сначала `cd typescript`.
 
 **Как мы разрабатывали приложение с нейросетью** — пошаговый план со схемами
-(для преподавателя и школьников): [docs/development-plan.md](docs/development-plan.md)
+(для преподавателя и школьников): [docs/development-plan.md](../docs/development-plan.md)
 
 ---
 

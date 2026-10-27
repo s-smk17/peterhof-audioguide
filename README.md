@@ -15,7 +15,7 @@
 (`.github/workflows/`).
 
 Как мы разрабатывали приложение с нейросетью — пошаговый план со схемами:
-[typescript/docs/development-plan.md](typescript/docs/development-plan.md)
+[docs/development-plan.md](docs/development-plan.md)
 
 ## Лицензия
 
