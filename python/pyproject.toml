@@ -1,0 +1,54 @@
+[project]
+name = "peterhof-audioguide"
+version = "1.0.0"
+description = "Аудиогид по маршруту автобуса 343Э: Ломоносов — Петергоф — метро «Проспект Ветеранов»"
+requires-python = ">=3.10"
+dependencies = [
+    "flet==1.0.5",
+    "flet-audio==1.0.5",
+    "flet-geolocator==1.0.5",
+    "flet-map==1.0.5",
+    # Сертификаты для HTTPS-запросов на Android (пешеходный маршрут)
+    "certifi",
+]
+
+[dependency-groups]
+dev = [
+    "flet[all]==1.0.5",
+    "pytest",
+]
+
+# Настройки сборки: flet build apk / flet build web
+[tool.flet]
+org = "com.s_smk17"
+product = "Аудиогид Петергоф"
+company = "s-smk17"
+copyright = "© 2026 Sergey (github.com/s-smk17). Все права защищены."
+# Отдельный id: на телефоне можно держать обе версии рядом
+bundle_id = "com.s_smk17.peterhofaudioguide.python"
+permissions = ["location"]
+
+[tool.flet.app]
+path = "src"
+
+[tool.flet.android]
+# Фоновое слежение за маршрутом: служба с уведомлением в шторке
+permission."android.permission.FOREGROUND_SERVICE" = true
+permission."android.permission.FOREGROUND_SERVICE_LOCATION" = true
+permission."android.permission.POST_NOTIFICATIONS" = true
+permission."android.permission.WAKE_LOCK" = true
+permission."android.permission.INTERNET" = true
+
+[tool.flet.ios]
+info."NSLocationWhenInUseUsageDescription" = "Геолокация нужна, чтобы автоматически открывать ближайшие точки маршрута."
+info."NSLocationAlwaysAndWhenInUseUsageDescription" = "Разрешите геолокацию «Всегда», чтобы аудиогид рассказывал о точках маршрута, даже когда телефон в кармане."
+info."UIBackgroundModes" = ["location", "audio"]
+
+[tool.flet.web]
+pwa_short_name = "Петергоф"
+pwa_background_color = "#05090D"
+pwa_theme_color = "#05090D"
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

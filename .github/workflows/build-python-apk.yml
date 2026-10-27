@@ -1,0 +1,67 @@
+# Сборка APK версии на Python (Flet) для Android.
+# Готовый файл появляется в разделе Releases → «Python APK (последняя сборка)»,
+# его можно скачать прямо на телефон и установить.
+name: Build Python APK
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "python/**"
+      - ".github/workflows/build-python-apk.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: python-apk
+  cancel-in-progress: true
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: python
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Install Flet
+        run: pip install "flet[all]==1.0.5" pytest flet-audio==1.0.5 flet-geolocator==1.0.5 flet-map==1.0.5
+
+      - name: Tests
+        run: python -m pytest -q
+
+      - name: Build APK
+        run: flet build apk --yes --no-rich-output --build-number ${{ github.run_number }}
+
+      - name: Rename APK
+        run: |
+          mkdir -p out
+          cp build/apk/*.apk out/peterhof-audioguide-python.apk
+          ls -la out
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: peterhof-audioguide-python-apk
+          path: python/out/peterhof-audioguide-python.apk
+
+      - name: Publish to release «python-latest»
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete python-latest --yes --cleanup-tag || true
+          gh release create python-latest out/peterhof-audioguide-python.apk \
+            --title "Python APK (последняя сборка)" \
+            --notes "Аудиогид Петергоф, версия на Python (Flet). Сборка №${{ github.run_number }} из коммита ${{ github.sha }}." \
+            --target ${{ github.sha }}

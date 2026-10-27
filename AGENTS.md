@@ -1,3 +1,9 @@
-# Expo HAS CHANGED
+# Структура репозитория
 
-Read the exact versioned docs at https://docs.expo.dev/versions/v57.0.0/ before writing any code.
+Одна программа (аудиогид по маршруту 343Э) на двух языках:
+
+- `typescript/` — Expo / React Native. Перед правками читайте `typescript/AGENTS.md`.
+- `python/` — Flet 1.0. Перед правками читайте `python/AGENTS.md`.
+
+Поведение версий должно совпадать: исправили логику в одной — проверьте и другую.
+Сборка и публикация обеих — `.github/workflows/` в корне.

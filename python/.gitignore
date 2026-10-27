@@ -1,0 +1,12 @@
+# окружение и кэш Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# результат flet build (сайт и APK)
+build/
+out/
+
+# локальные файлы Flet
+storage/

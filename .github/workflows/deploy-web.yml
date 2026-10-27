@@ -1,4 +1,6 @@
-# Сборка веб-версии аудиогида и публикация на GitHub Pages.
+# Сборка обеих веб-версий аудиогида и публикация на GitHub Pages:
+#   https://s-smk17.github.io/peterhof-audioguide/         — версия на TypeScript
+#   https://s-smk17.github.io/peterhof-audioguide/python/  — версия на Python
 # Один раз включите: Settings → Pages → Build and deployment → Source: GitHub Actions.
 name: Deploy web app
 
@@ -17,8 +19,11 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
+  typescript:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: typescript
     steps:
       - uses: actions/checkout@v4
 
@@ -26,6 +31,7 @@ jobs:
         with:
           node-version: 22
           cache: npm
+          cache-dependency-path: typescript/package-lock.json
 
       - run: npm ci
 
@@ -36,16 +42,57 @@ jobs:
           # Адрес сайта: https://<владелец>.github.io/<репозиторий>/
           EXPO_BASE_URL: /${{ github.event.repository.name }}
 
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
-          path: dist
+          name: web-typescript
+          path: typescript/dist
+
+  python:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: python
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Flet
+        run: pip install "flet[all]==1.0.5" pytest flet-audio==1.0.5 flet-geolocator==1.0.5 flet-map==1.0.5
+
+      - name: Tests
+        run: python -m pytest -q
+
+      - name: Build web app (Python в браузере через Pyodide)
+        run: flet build web --yes --no-rich-output --base-url "${{ github.event.repository.name }}/python"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: web-python
+          path: python/build/web
 
   deploy:
-    needs: build
+    needs: [typescript, python]
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: web-typescript
+          path: site
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: web-python
+          path: site/python
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
       - id: deployment
         uses: actions/deploy-pages@v4
