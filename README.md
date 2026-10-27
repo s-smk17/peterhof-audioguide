@@ -4,7 +4,7 @@
 Следит за положением по GPS и сам включает рассказ, когда автобус подъезжает
 к остановке. 29 точек, фото, карта маршрута, светлая и тёмная темы.
 
-**Веб-версия:** https://s-smk17.github.io/peterhof-audioguide-web/
+**Веб-версия:** https://s-smk17.github.io/peterhof-audioguide/
 
 Один код на Expo (React Native) собирается в три варианта: Android, iOS и сайт.
 
@@ -186,7 +186,7 @@ Actions → *Deploy web app* → *Run workflow*.
 2. Settings → Pages → Source: **GitHub Actions**.
 
 Почему нужен `app.config.js`: сайт живёт не в корне домена, а в
-`/peterhof-audioguide-web/`. Workflow передаёт этот путь через переменную
+`/peterhof-audioguide/`. Workflow передаёт этот путь через переменную
 `EXPO_BASE_URL`, и Expo подставляет его во все ссылки на скрипты, фото и аудио.
 Локально переменная не задана — сайт работает из корня.
 
