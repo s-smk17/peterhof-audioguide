@@ -1,21 +1,27 @@
-The MIT License (MIT)
+Copyright (c) 2026 Sergey (github.com/s-smk17). Все права защищены.
 
-Copyright (c) 2015-present 650 Industries, Inc. (aka Expo)
+Исходный код, тексты экскурсии, аудиозаписи и другие материалы этого
+репозитория (кроме перечисленных ниже) охраняются авторским правом.
+Без письменного разрешения автора запрещается копировать, изменять,
+распространять, публиковать, продавать их или использовать в других
+проектах — целиком или частично.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+Открытость репозитория на GitHub не даёт никаких прав на использование.
+Разрешено только просматривать код на GitHub и пользоваться опубликованным
+сайтом аудиогида по назначению.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+Материалы третьих лиц распространяются на их собственных условиях:
+- фотографии остановок — Wikimedia Commons, авторы и лицензии указаны
+  в src/data/route.ts;
+- данные маршрута — © участники OpenStreetMap, лицензия ODbL;
+- библиотеки (Expo, React Native, MapLibre и др.) — по лицензиям их авторов.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+---
+
+Copyright (c) 2026 Sergey (github.com/s-smk17). All rights reserved.
+
+The source code, tour texts, audio recordings and other materials in this
+repository (except third-party materials listed above) are protected by
+copyright. No part may be copied, modified, distributed, published, sold
+or used in other projects without the author's written permission.
+Public visibility of this repository does not grant any license.
