@@ -9,7 +9,7 @@ import {
 import { useGuideAudio } from './src/audio/useGuideAudio';
 import BottomNav, { type Tab } from './src/components/BottomNav';
 import FullscreenMap from './src/components/FullscreenMap';
-import { BottomSpaceContext } from './src/components/layout';
+import { BottomSpaceContext, MAX_CONTENT_WIDTH } from './src/components/layout';
 import MiniPlayer from './src/components/MiniPlayer';
 import { BackgroundGlow } from './src/components/ui';
 import { useNavigation } from './src/location/useNavigation';
@@ -185,31 +185,40 @@ function AppContent() {
 
       {tab !== 'guide' && <BackgroundGlow />}
 
-      <SafeAreaView edges={['top', 'left', 'right']} style={{ flex: 1 }}>
-        <BottomSpaceContext.Provider value={bottomSpace}>
-          {screen}
-        </BottomSpaceContext.Provider>
-      </SafeAreaView>
-
       <View
         style={{
-          position: 'absolute',
-          left: 12,
-          right: 12,
-          bottom: 10 + insets.bottom,
-          gap: 8,
+          flex: 1,
+          width: '100%',
+          maxWidth: MAX_CONTENT_WIDTH,
+          alignSelf: 'center',
         }}
       >
-        {showMiniPlayer && (
-          <MiniPlayer audio={audio} onOpen={() => setTab('guide')} />
-        )}
+        <SafeAreaView edges={['top', 'left', 'right']} style={{ flex: 1 }}>
+          <BottomSpaceContext.Provider value={bottomSpace}>
+            {screen}
+          </BottomSpaceContext.Provider>
+        </SafeAreaView>
 
-        <BottomNav
-          tab={tab}
-          onChange={setTab}
-          homeAlert={homeAlert}
-          guidePlaying={audio.playing}
-        />
+        <View
+          style={{
+            position: 'absolute',
+            left: 12,
+            right: 12,
+            bottom: 10 + insets.bottom,
+            gap: 8,
+          }}
+        >
+          {showMiniPlayer && (
+            <MiniPlayer audio={audio} onOpen={() => setTab('guide')} />
+          )}
+
+          <BottomNav
+            tab={tab}
+            onChange={setTab}
+            homeAlert={homeAlert}
+            guidePlaying={audio.playing}
+          />
+        </View>
       </View>
 
       <FullscreenMap

@@ -71,7 +71,7 @@ export default function FullscreenMap({
           <Text style={styles.closeText}>✕</Text>
         </Pressable>
 
-        <Glass style={[styles.sheet, { bottom: insets.bottom + 16 }]}>
+        <Glass floating style={[styles.sheet, { bottom: insets.bottom + 16 }]}>
           <NavigationInfo tracking={tracking} navigation={navigation} />
 
           {to && (

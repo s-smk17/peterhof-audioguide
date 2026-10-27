@@ -1,5 +1,5 @@
 import React, { useState, type ReactNode } from 'react';
-import { Linking, Pressable, ScrollView, Text, View } from 'react-native';
+import { Linking, Platform, Pressable, ScrollView, Text, View } from 'react-native';
 import Constants from 'expo-constants';
 
 import { useScrollContentStyle } from '../components/layout';
@@ -74,6 +74,9 @@ function Block({
   );
 }
 
+// В браузере нет фоновой геолокации и системных настроек приложения
+const IS_WEB = Platform.OS === 'web';
+
 const GPS_MODE: Record<
   RouteTrackingState['mode'],
   { value: string; description: string; ok: boolean }
@@ -85,19 +88,24 @@ const GPS_MODE: Record<
   },
   foreground: {
     value: 'Пока открыто',
-    description:
-      'Разрешите геолокацию «Всегда», чтобы гид работал, когда телефон в кармане',
+    description: IS_WEB
+      ? 'В браузере гид работает, пока вкладка открыта и экран включён'
+      : 'Разрешите геолокацию «Всегда», чтобы гид работал, когда телефон в кармане',
     ok: true,
   },
   starting: { value: '…', description: 'Запускаем GPS', ok: true },
   denied: {
     value: 'Нет доступа',
-    description: 'Разрешите доступ к геолокации в настройках телефона',
+    description: IS_WEB
+      ? 'Разрешите доступ к геолокации для этого сайта в настройках браузера'
+      : 'Разрешите доступ к геолокации в настройках телефона',
     ok: false,
   },
   disabled: {
     value: 'Выключен',
-    description: 'Включите геолокацию в настройках телефона',
+    description: IS_WEB
+      ? 'Включите геолокацию на телефоне; сайт должен быть открыт по HTTPS'
+      : 'Включите геолокацию в настройках телефона',
     ok: false,
   },
 };
@@ -193,6 +201,7 @@ export default function SettingsScreen({
         <Block
           title="Когда начинать рассказ"
           description={`За ${TRIGGER_DISTANCE[settings.triggerTiming]} м до остановки`}
+          last={IS_WEB}
         >
           <Segmented<TriggerTiming>
             value={settings.triggerTiming}
@@ -204,13 +213,15 @@ export default function SettingsScreen({
             ]}
           />
         </Block>
-        <Row
-          title="Настройки геолокации телефона"
-          description="Точность, доступ «Всегда»"
-          right={<Text style={styles.chevron}>›</Text>}
-          onPress={() => Linking.openSettings()}
-          last
-        />
+        {!IS_WEB && (
+          <Row
+            title="Настройки геолокации телефона"
+            description="Точность, доступ «Всегда»"
+            right={<Text style={styles.chevron}>›</Text>}
+            onPress={() => Linking.openSettings()}
+            last
+          />
+        )}
       </Section>
 
       <Section title="Данные">
