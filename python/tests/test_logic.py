@@ -246,3 +246,21 @@ def test_demo_ride_triggers_every_stop_in_order():
 
     assert [index for index, _ in reached] == list(range(len(ROUTE_POINTS)))
     assert all(direction == 1 for _, direction in reached[1:])
+
+
+# --- куда смотреть ---
+
+
+def test_look_side_values():
+    assert {p.look_side for p in ROUTE_POINTS} <= {"left", "right", "ahead", None}
+
+
+def test_look_hint_flips_on_way_back():
+    from app.format import look_hint
+
+    assert look_hint(None, 1) is None
+    assert look_hint("left", 1) == ("←", "Смотрите в левое окно")
+    assert look_hint("left", -1) == ("→", "Смотрите в правое окно")
+    assert look_hint("right", 1) == ("→", "Смотрите в правое окно")
+    assert look_hint("right", -1) == ("←", "Смотрите в левое окно")
+    assert look_hint("ahead", -1) == ("↑", "Смотрите вперёд")

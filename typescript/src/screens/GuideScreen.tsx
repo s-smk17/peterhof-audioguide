@@ -13,11 +13,11 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 import type { GuideAudio } from '../audio/useGuideAudio';
 import { useScrollContentStyle } from '../components/layout';
-import { Icon } from '../components/ui';
+import { Icon, LookBadge } from '../components/ui';
 import { routePoints } from '../data/route';
 import { useSettings, type PlaybackRate } from '../settings';
 import { makeStyles, useTheme } from '../theme';
-import { formatTime } from '../utils/format';
+import { formatTime, lookHint } from '../utils/format';
 
 const { width } = Dimensions.get('window');
 const COVER = Math.min(width - 56, 420);
@@ -110,9 +110,12 @@ function SeekBar({
 export default function GuideScreen({
   audio,
   completed,
+  direction,
 }: {
   audio: GuideAudio;
   completed: number[];
+  /** Куда едем: от этого зависит «левое / правое окно» */
+  direction: 1 | -1;
 }) {
   const colors = useTheme();
   const styles = useStyles();
@@ -120,6 +123,7 @@ export default function GuideScreen({
   const { settings, update } = useSettings();
   const { currentIndex, playing } = audio;
   const point = routePoints[currentIndex];
+  const look = lookHint(point.lookSide, direction);
   const hasPrev = currentIndex > 0;
   const hasNext = currentIndex < routePoints.length - 1;
   const upcoming = routePoints
@@ -182,6 +186,12 @@ export default function GuideScreen({
             </View>
           )}
         </View>
+
+        {look && (
+          <View style={styles.look}>
+            <LookBadge hint={look} />
+          </View>
+        )}
 
         <SeekBar
           currentTime={audio.currentTime}
@@ -298,6 +308,11 @@ export default function GuideScreen({
 const useStyles = makeStyles((c) => ({
   screen: {
     flex: 1,
+  },
+
+  look: {
+    marginTop: -6,
+    marginBottom: 16,
   },
 
   header: {

@@ -1,3 +1,10 @@
+/**
+ * Куда смотреть из окна у этой остановки — для поездки к метро «Проспект
+ * Ветеранов». На обратном пути лево и право меняются местами.
+ * null — смотреть особенно не на что (или сторону не удалось определить).
+ */
+export type LookSide = 'left' | 'right' | 'ahead' | null;
+
 export type RoutePoint = {
   id: string;
   order: number;
@@ -19,6 +26,9 @@ export type RoutePoint = {
   // Координаты остановки (OpenStreetMap)
   latitude: number | null;
   longitude: number | null;
+
+  /** Куда смотреть из окна (см. LookSide) */
+  lookSide: LookSide;
 
   // Пока это примеры, сгенерированные синтезатором речи
   audioRu: any | null;
@@ -43,6 +53,7 @@ export const routePoints: RoutePoint[] = [
     },
     latitude: 59.9174888,
     longitude: 29.7699554,
+    lookSide: "left",
     audioRu: require("../../assets/audio/point-01.mp3"),
     audioEn: null,
   },
@@ -64,6 +75,7 @@ export const routePoints: RoutePoint[] = [
     },
     latitude: 59.9141728,
     longitude: 29.768976,
+    lookSide: "left",
     audioRu: require("../../assets/audio/point-02.mp3"),
     audioEn: null,
   },
@@ -85,6 +97,7 @@ export const routePoints: RoutePoint[] = [
     },
     latitude: 59.9106014,
     longitude: 29.7699403,
+    lookSide: null,
     audioRu: require("../../assets/audio/point-03.mp3"),
     audioEn: null,
   },
@@ -106,6 +119,7 @@ export const routePoints: RoutePoint[] = [
     },
     latitude: 59.9101993,
     longitude: 29.7736318,
+    lookSide: null,
     audioRu: require("../../assets/audio/point-04.mp3"),
     audioEn: null,
   },
@@ -127,6 +141,7 @@ export const routePoints: RoutePoint[] = [
     },
     latitude: 59.9078377,
     longitude: 29.7738684,
+    lookSide: null,
     audioRu: require("../../assets/audio/point-05.mp3"),
     audioEn: null,
   },
@@ -148,6 +163,7 @@ export const routePoints: RoutePoint[] = [
     },
     latitude: 59.9055105,
     longitude: 29.7719634,
+    lookSide: null,
     audioRu: require("../../assets/audio/point-06.mp3"),
     audioEn: null,
   },
@@ -169,6 +185,7 @@ export const routePoints: RoutePoint[] = [
     },
     latitude: 59.9024319,
     longitude: 29.7701314,
+    lookSide: "right",
     audioRu: require("../../assets/audio/point-07.mp3"),
     audioEn: null,
   },
@@ -190,6 +207,7 @@ export const routePoints: RoutePoint[] = [
     },
     latitude: 59.9005528,
     longitude: 29.7746038,
+    lookSide: null,
     audioRu: require("../../assets/audio/point-08.mp3"),
     audioEn: null,
   },
@@ -211,6 +229,7 @@ export const routePoints: RoutePoint[] = [
     },
     latitude: 59.8995622,
     longitude: 29.7786999,
+    lookSide: null,
     audioRu: require("../../assets/audio/point-09.mp3"),
     audioEn: null,
   },
@@ -232,6 +251,7 @@ export const routePoints: RoutePoint[] = [
     },
     latitude: 59.8946252,
     longitude: 29.7963898,
+    lookSide: null,
     audioRu: require("../../assets/audio/point-10.mp3"),
     audioEn: null,
   },
@@ -253,6 +273,7 @@ export const routePoints: RoutePoint[] = [
     },
     latitude: 59.897666,
     longitude: 29.8070411,
+    lookSide: null,
     audioRu: require("../../assets/audio/point-11.mp3"),
     audioEn: null,
   },
@@ -274,6 +295,7 @@ export const routePoints: RoutePoint[] = [
     },
     latitude: 59.8997982,
     longitude: 29.81431,
+    lookSide: null,
     audioRu: require("../../assets/audio/point-12.mp3"),
     audioEn: null,
   },
@@ -295,6 +317,7 @@ export const routePoints: RoutePoint[] = [
     },
     latitude: 59.9020926,
     longitude: 29.8177905,
+    lookSide: null,
     audioRu: require("../../assets/audio/point-13.mp3"),
     audioEn: null,
   },
@@ -316,6 +339,7 @@ export const routePoints: RoutePoint[] = [
     },
     latitude: 59.8988884,
     longitude: 29.8290334,
+    lookSide: null,
     audioRu: require("../../assets/audio/point-14.mp3"),
     audioEn: null,
   },
@@ -337,6 +361,7 @@ export const routePoints: RoutePoint[] = [
     },
     latitude: 59.8827654,
     longitude: 29.8900683,
+    lookSide: null,
     audioRu: require("../../assets/audio/point-15.mp3"),
     audioEn: null,
   },
@@ -358,6 +383,7 @@ export const routePoints: RoutePoint[] = [
     },
     latitude: 59.8807609,
     longitude: 29.9038791,
+    lookSide: null,
     audioRu: require("../../assets/audio/point-16.mp3"),
     audioEn: null,
   },
@@ -379,6 +405,7 @@ export const routePoints: RoutePoint[] = [
     },
     latitude: 59.878824,
     longitude: 29.9171965,
+    lookSide: null,
     audioRu: require("../../assets/audio/point-17.mp3"),
     audioEn: null,
   },
@@ -400,6 +427,7 @@ export const routePoints: RoutePoint[] = [
     },
     latitude: 59.8778959,
     longitude: 29.9237411,
+    lookSide: null,
     audioRu: require("../../assets/audio/point-18.mp3"),
     audioEn: null,
   },
@@ -421,6 +449,7 @@ export const routePoints: RoutePoint[] = [
     },
     latitude: 59.8572924,
     longitude: 30.0082318,
+    lookSide: null,
     audioRu: require("../../assets/audio/point-19.mp3"),
     audioEn: null,
   },
@@ -442,6 +471,7 @@ export const routePoints: RoutePoint[] = [
     },
     latitude: 59.8544647,
     longitude: 30.0220265,
+    lookSide: null,
     audioRu: require("../../assets/audio/point-20.mp3"),
     audioEn: null,
   },
@@ -463,6 +493,7 @@ export const routePoints: RoutePoint[] = [
     },
     latitude: 59.8525966,
     longitude: 30.0378304,
+    lookSide: "left",
     audioRu: require("../../assets/audio/point-21.mp3"),
     audioEn: null,
   },
@@ -484,6 +515,7 @@ export const routePoints: RoutePoint[] = [
     },
     latitude: 59.8529746,
     longitude: 30.0914135,
+    lookSide: null,
     audioRu: require("../../assets/audio/point-22.mp3"),
     audioEn: null,
   },
@@ -505,6 +537,7 @@ export const routePoints: RoutePoint[] = [
     },
     latitude: 59.8408196,
     longitude: 30.1301119,
+    lookSide: null,
     audioRu: require("../../assets/audio/point-23.mp3"),
     audioEn: null,
   },
@@ -526,6 +559,7 @@ export const routePoints: RoutePoint[] = [
     },
     latitude: 59.8353881,
     longitude: 30.1279068,
+    lookSide: null,
     audioRu: require("../../assets/audio/point-24.mp3"),
     audioEn: null,
   },
@@ -547,6 +581,7 @@ export const routePoints: RoutePoint[] = [
     },
     latitude: 59.8353814,
     longitude: 30.1478406,
+    lookSide: null,
     audioRu: require("../../assets/audio/point-25.mp3"),
     audioEn: null,
   },
@@ -568,6 +603,7 @@ export const routePoints: RoutePoint[] = [
     },
     latitude: 59.83301,
     longitude: 30.182955,
+    lookSide: "right",
     audioRu: require("../../assets/audio/point-26.mp3"),
     audioEn: null,
   },
@@ -589,6 +625,7 @@ export const routePoints: RoutePoint[] = [
     },
     latitude: 59.832987,
     longitude: 30.1958451,
+    lookSide: null,
     audioRu: require("../../assets/audio/point-27.mp3"),
     audioEn: null,
   },
@@ -610,6 +647,7 @@ export const routePoints: RoutePoint[] = [
     },
     latitude: 59.8338203,
     longitude: 30.2189469,
+    lookSide: null,
     audioRu: require("../../assets/audio/point-28.mp3"),
     audioEn: null,
   },
@@ -631,6 +669,7 @@ export const routePoints: RoutePoint[] = [
     },
     latitude: 59.8426879,
     longitude: 30.2454073,
+    lookSide: null,
     audioRu: require("../../assets/audio/point-29.mp3"),
     audioEn: null,
   },

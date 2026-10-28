@@ -11,6 +11,7 @@ import {
 import { BlurView } from 'expo-blur';
 
 import { makeStyles, useTheme } from '../theme';
+import type { LookHint } from '../utils/format';
 
 export function Glass({
   children,
@@ -166,6 +167,27 @@ export function Segmented<T extends string | number>({
   );
 }
 
+/**
+ * Заметная плашка «Смотрите в левое окно» со стрелкой.
+ * onPhoto — поверх фото: цвета не зависят от темы.
+ */
+export function LookBadge({ hint, onPhoto }: { hint: LookHint; onPhoto?: boolean }) {
+  const colors = useTheme();
+  const styles = useStyles();
+  const fg = onPhoto ? '#061015' : colors.onAccent;
+  const bg = onPhoto ? '#63E6FF' : colors.accent;
+
+  return (
+    <View style={[styles.look, { backgroundColor: bg }]}>
+      {/* Кружок со стрелкой — в обратных цветах, чтобы стрелку было видно издалека */}
+      <View style={[styles.lookArrow, { backgroundColor: fg }]}>
+        <Text style={[styles.lookArrowText, { color: bg }]}>{hint.arrow}</Text>
+      </View>
+      <Text style={[styles.lookText, { color: fg }]}>{hint.text}</Text>
+    </View>
+  );
+}
+
 const useStyles = makeStyles((c) => ({
   glass: {
     overflow: 'hidden',
@@ -284,5 +306,35 @@ const useStyles = makeStyles((c) => ({
 
   segmentTextActive: {
     color: c.text,
+  },
+
+  look: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    gap: 10,
+    paddingVertical: 8,
+    paddingLeft: 8,
+    paddingRight: 16,
+    borderRadius: 100,
+  },
+
+  lookArrow: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  lookArrowText: {
+    fontSize: 18,
+    fontWeight: '900',
+    lineHeight: 21,
+  },
+
+  lookText: {
+    fontSize: 15,
+    fontWeight: '800',
   },
 }));

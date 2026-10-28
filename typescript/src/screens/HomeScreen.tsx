@@ -6,14 +6,14 @@ import type { GuideAudio } from '../audio/useGuideAudio';
 import { MAX_CONTENT_WIDTH, useScrollContentStyle } from '../components/layout';
 import MapView from '../components/MapView';
 import NavigationInfo from '../components/NavigationInfo';
-import { Glass, Icon, TopBar } from '../components/ui';
+import { Glass, Icon, LookBadge, TopBar } from '../components/ui';
 import { routePoints } from '../data/route';
 import { ROUTE_LENGTH } from '../location/routeGeometry';
 import type { DemoControls } from '../location/useDemoRide';
 import type { Navigation } from '../location/useNavigation';
 import type { RouteTrackingState } from '../location/useRouteTracking';
 import { makeStyles, useTheme, type Palette } from '../theme';
-import { formatDistance } from '../utils/format';
+import { formatDistance, lookHint } from '../utils/format';
 
 const width = Math.min(Dimensions.get('window').width, MAX_CONTENT_WIDTH);
 
@@ -92,6 +92,8 @@ export default function HomeScreen({
   const needsRetry = tracking.mode === 'denied' || tracking.mode === 'disabled';
   const progress = routePoints.length ? completed.length / routePoints.length : 0;
   const point = routePoints[audio.currentIndex];
+  // Пока идёт рассказ — подсказываем, в какое окно смотреть
+  const look = audio.playing && point ? lookHint(point.lookSide, tracking.direction) : null;
 
   return (
     <ScrollView
@@ -154,6 +156,12 @@ export default function HomeScreen({
             ТОЧКА {audio.currentIndex + 1} · {audio.playing ? 'ИГРАЕТ' : 'АУДИОГИД'}
           </Text>
           <Text style={styles.heroTitle}>{point?.name ?? 'Петергоф'}</Text>
+
+          {look && (
+            <View style={{ marginTop: 10 }}>
+              <LookBadge hint={look} onPhoto />
+            </View>
+          )}
 
           <View style={styles.heroBottom}>
             <Text style={styles.heroHint}>Открыть плеер</Text>

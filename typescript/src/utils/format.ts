@@ -18,3 +18,22 @@ export function formatDuration(seconds: number) {
     ? `${minutes} мин`
     : `${Math.floor(minutes / 60)} ч ${minutes % 60} мин`;
 }
+
+export type LookHint = { arrow: string; text: string };
+
+/**
+ * Подсказка «куда смотреть» с учётом направления поездки.
+ * side задан для поездки к метро (direction = 1); обратно лево и право меняются.
+ */
+export function lookHint(
+  side: 'left' | 'right' | 'ahead' | null,
+  direction: 1 | -1
+): LookHint | null {
+  if (side == null) return null;
+  if (side === 'ahead') return { arrow: '↑', text: 'Смотрите вперёд' };
+
+  const left = (side === 'left') === (direction === 1);
+  return left
+    ? { arrow: '←', text: 'Смотрите в левое окно' }
+    : { arrow: '→', text: 'Смотрите в правое окно' };
+}

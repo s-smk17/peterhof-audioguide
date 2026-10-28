@@ -7,10 +7,10 @@ import flet as ft
 from app.audio import AudioState
 from app.controller import Progress
 from app.data.route import ROUTE_POINTS
-from app.format import format_rate, format_time
+from app.format import format_rate, format_time, look_hint
 from app.settings import PLAYBACK_RATES, Settings
 from app.theme import use_colors
-from app.ui.widgets import Label, RoundButton, scroll_content
+from app.ui.widgets import Label, LookBadge, RoundButton, scroll_content
 
 
 @ft.component
@@ -66,6 +66,7 @@ def GuideScreen(
     audio: AudioState,
     progress: Progress,
     settings: Settings,
+    direction: int,
     bottom_space: float,
     width: float,
     on_toggle: Callable,
@@ -77,6 +78,8 @@ def GuideScreen(
     colors = use_colors()
     index = audio.current_index
     point = ROUTE_POINTS[index]
+    # Куда смотреть — зависит от направления поездки
+    look = look_hint(point.look_side, direction)
     playing = audio.playing
     has_prev = index > 0
     has_next = index < len(ROUTE_POINTS) - 1
@@ -215,6 +218,7 @@ def GuideScreen(
                 margin=ft.Margin.only(bottom=26),
             ),
             ft.Row(title_row, spacing=12, margin=ft.Margin.only(bottom=10)),
+            *([ft.Container(LookBadge(look, colors), margin=ft.Margin.only(bottom=12))] if look else []),
             SeekBar(audio.current_time, audio.duration, on_seek),
             ft.Row(
                 [

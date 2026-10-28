@@ -176,7 +176,13 @@ function AppContent() {
 
   switch (tab) {
     case 'guide':
-      screen = <GuideScreen audio={audio} completed={completed} />;
+      screen = (
+        <GuideScreen
+          audio={audio}
+          completed={completed}
+          direction={tracking.direction}
+        />
+      );
       break;
 
     case 'route':

@@ -9,12 +9,12 @@ from app.controller import Navigation, Progress, WalkState
 from app.data.route import ROUTE_POINTS
 from app.demo import DemoState
 from app.geometry import ROUTE_LENGTH
-from app.format import format_distance
+from app.format import format_distance, look_hint
 from app.theme import Palette, use_colors
 from app.tracking import TrackingState
 from app.ui.panels import NavigationInfo
 from app.ui.route_map import RouteMap
-from app.ui.widgets import HERO_ACCENT, HERO_TEXT, Glass, Label, TopBar, scroll_content
+from app.ui.widgets import HERO_ACCENT, HERO_TEXT, Glass, Label, LookBadge, TopBar, scroll_content
 
 
 def route_badge(tracking: TrackingState, colors: Palette) -> tuple[str, str, str]:
@@ -58,6 +58,8 @@ def HomeScreen(
     completed = progress.completed
     share = len(completed) / len(ROUTE_POINTS) if ROUTE_POINTS else 0
     point = ROUTE_POINTS[audio.current_index]
+    # Пока идёт рассказ — подсказываем, в какое окно смотреть
+    look = look_hint(point.look_side, tracking.direction) if audio.playing else None
 
     status_texts: list[ft.Control] = [
         Label(label, color, size=11),
@@ -182,6 +184,7 @@ def HomeScreen(
                                     height=1.15,
                                 ),
                             ),
+                            *([ft.Container(LookBadge(look, colors, on_photo=True), margin=ft.Margin.only(top=4))] if look else []),
                             ft.Row(
                                 [
                                     ft.Text(

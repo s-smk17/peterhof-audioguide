@@ -159,3 +159,34 @@ def scroll_content(controls: list[ft.Control], bottom_space: float) -> ft.ListVi
         expand=True,
         padding=ft.Padding.only(left=18, right=18, top=12, bottom=bottom_space),
     )
+
+
+def LookBadge(hint: tuple[str, str], colors: Palette, on_photo: bool = False) -> ft.Row:
+    """Заметная плашка «Смотрите в левое окно» со стрелкой.
+    on_photo — поверх фото: цвета не зависят от темы."""
+    arrow, text = hint
+    fg = "#061015" if on_photo else colors.on_accent
+    bg = HERO_ACCENT if on_photo else colors.accent
+    badge = ft.Container(
+        padding=ft.Padding.only(left=8, top=8, right=16, bottom=8),
+        border_radius=100,
+        bgcolor=bg,
+        content=ft.Row(
+            [
+                ft.Container(
+                    width=28,
+                    height=28,
+                    border_radius=14,
+                    # Кружок со стрелкой — в обратных цветах, чтобы стрелку было видно издалека
+                    bgcolor=fg,
+                    alignment=ft.Alignment.CENTER,
+                    content=ft.Text(arrow, size=18, weight=ft.FontWeight.W_900, color=bg),
+                ),
+                ft.Text(text, size=15, weight=ft.FontWeight.W_800, color=fg),
+            ],
+            spacing=10,
+            tight=True,
+        ),
+    )
+    # Row — чтобы плашка была по ширине текста, а не на всю строку
+    return ft.Row([badge])

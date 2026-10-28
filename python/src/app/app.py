@@ -73,6 +73,7 @@ def AppContent(
             audio,
             progress,
             settings,
+            tracking.direction,
             bottom_space,
             width,
             on_toggle=toggle,
