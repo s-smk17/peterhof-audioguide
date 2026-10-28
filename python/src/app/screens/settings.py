@@ -184,7 +184,7 @@ def SettingsScreen(
                                     bgcolor=colors.danger,
                                     alignment=ft.Alignment.CENTER,
                                     on_click=lambda _: do_reset(),
-                                    content=ft.Text("Сбросить", weight=ft.FontWeight.W_800, color="#FFFFFF"),
+                                    content=ft.Text("Сбросить", weight=ft.FontWeight.W_800, color=colors.on_danger),
                                 ),
                             ],
                             spacing=10,

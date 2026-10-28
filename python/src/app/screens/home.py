@@ -30,7 +30,7 @@ def route_badge(tracking: TrackingState, colors: Palette) -> tuple[str, str, str
             f"До маршрута 343Э — {format_distance(tracking.offset or 0)}",
         )
     if tracking.status == "on-route":
-        return "НА МАРШРУТЕ", colors.accent, "Рассказ начнётся сам у каждой точки"
+        return "НА МАРШРУТЕ", colors.success, "Рассказ начнётся сам у каждой точки"
     return "ПОИСК GPS…", colors.muted, "Определяем, где вы находитесь"
 
 
@@ -159,7 +159,7 @@ def HomeScreen(
         content=ft.Stack(
             [
                 ft.Image(src=point.image, fit=ft.BoxFit.COVER, expand=True, width=width, height=width * 0.62),
-                ft.Container(expand=True, bgcolor=ft.Colors.with_opacity(0.42, "#00060A")),
+                ft.Container(expand=True, bgcolor=ft.Colors.with_opacity(0.45, "#080D17")),
                 ft.Container(
                     padding=20,
                     left=0,
@@ -202,7 +202,7 @@ def HomeScreen(
                                         on_click=lambda _: on_toggle(),
                                         content=ft.Icon(
                                             ft.Icons.PAUSE_ROUNDED if audio.playing else ft.Icons.PLAY_ARROW_ROUNDED,
-                                            color="#061015",
+                                            color="#080D17",
                                             size=26,
                                         ),
                                     ),

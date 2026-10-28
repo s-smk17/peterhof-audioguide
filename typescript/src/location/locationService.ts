@@ -118,7 +118,7 @@ async function startBackgroundUpdates() {
       foregroundService: {
         notificationTitle: 'Аудиогид Петергоф',
         notificationBody: 'Следим за маршрутом 343Э, чтобы вовремя начать рассказ',
-        notificationColor: '#63E6FF',
+        notificationColor: '#D4A359',
         killServiceOnDestroy: true,
       },
     });

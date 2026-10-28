@@ -10,7 +10,7 @@ MAX_CONTENT_WIDTH = 560
 """На компьютере приложение не шире телефона, иначе всё растянуто"""
 
 HERO_TEXT = "#FFFFFF"
-HERO_ACCENT = "#63E6FF"
+HERO_ACCENT = "#F3C77C"
 
 
 def label_style(color: str, size: float, spacing: float = 1.4, weight=ft.FontWeight.W_900):
@@ -165,7 +165,7 @@ def LookBadge(hint: tuple[str, str], colors: Palette, on_photo: bool = False) ->
     """Заметная плашка «Смотрите в левое окно» со стрелкой.
     on_photo — поверх фото: цвета не зависят от темы."""
     arrow, text = hint
-    fg = "#061015" if on_photo else colors.on_accent
+    fg = "#080D17" if on_photo else colors.on_accent
     bg = HERO_ACCENT if on_photo else colors.accent
     badge = ft.Container(
         padding=ft.Padding.only(left=8, top=8, right=16, bottom=8),

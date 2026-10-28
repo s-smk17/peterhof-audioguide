@@ -281,7 +281,7 @@ def GuideScreen(
     )
 
     # Размытая обложка на фоне — как в Яндекс Музыке
-    top_shade = "#8C05090D" if colors.scheme == "dark" else "#8CF2F5F7"
+    top_shade = "#8C0C111C" if colors.scheme == "dark" else "#8CF4F6F9"
     return ft.Stack(
         [
             ft.Container(

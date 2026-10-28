@@ -174,8 +174,8 @@ export function Segmented<T extends string | number>({
 export function LookBadge({ hint, onPhoto }: { hint: LookHint; onPhoto?: boolean }) {
   const colors = useTheme();
   const styles = useStyles();
-  const fg = onPhoto ? '#061015' : colors.onAccent;
-  const bg = onPhoto ? '#63E6FF' : colors.accent;
+  const fg = onPhoto ? '#080D17' : colors.onAccent;
+  const bg = onPhoto ? '#F3C77C' : colors.accent;
 
   return (
     <View style={[styles.look, { backgroundColor: bg }]}>

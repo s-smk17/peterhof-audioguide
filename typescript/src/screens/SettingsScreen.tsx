@@ -412,7 +412,7 @@ const useStyles = makeStyles((c) => ({
   },
 
   confirmDangerText: {
-    color: '#FFFFFF',
+    color: c.onDanger,
     fontWeight: '800',
   },
 

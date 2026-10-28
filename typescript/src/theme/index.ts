@@ -27,6 +27,8 @@ export type Palette = {
   warn: string;
   onWarn: string;
   danger: string;
+  /** Текст на красной кнопке */
+  onDanger: string;
   glowA: string;
   glowB: string;
   glowC: string;
@@ -34,52 +36,56 @@ export type Palette = {
   mapBg: string;
 };
 
+/** «Петергоф: Балтика и золото» — тёмная тема */
 export const darkPalette: Palette = {
   scheme: 'dark',
-  bg: '#05090D',
-  glass: 'rgba(13, 20, 25, 0.72)',
-  border: 'rgba(255,255,255,0.12)',
-  text: '#F5F8FA',
-  textSecondary: '#A5B0B6',
-  muted: '#82909A',
-  faint: '#5A6870',
-  fill: 'rgba(255,255,255,0.08)',
-  accent: '#63E6FF',
-  onAccent: '#061015',
-  accentSoft: 'rgba(99,230,255,0.13)',
-  success: '#67D9A1',
-  warn: '#FFB86B',
-  onWarn: '#1A1004',
-  danger: '#FF7A7A',
-  glowA: 'rgba(36, 130, 255, 0.10)',
-  glowB: 'rgba(126, 91, 255, 0.07)',
-  glowC: 'rgba(49, 220, 210, 0.045)',
+  bg: '#0C111C',
+  glass: 'rgba(20, 28, 46, 0.72)',
+  border: '#263550',
+  text: '#F1F5F9',
+  textSecondary: '#CBD5E1',
+  muted: '#94A3B8',
+  faint: '#64748B',
+  fill: 'rgba(148, 163, 184, 0.1)',
+  accent: '#D4A359',
+  onAccent: '#080D17',
+  accentSoft: 'rgba(212, 163, 89, 0.14)',
+  success: '#2A9D8F',
+  warn: '#D96B43',
+  onWarn: '#080D17',
+  danger: '#F07167',
+  onDanger: '#080D17',
+  glowA: 'rgba(59, 110, 200, 0.09)',
+  glowB: 'rgba(212, 163, 89, 0.05)',
+  glowC: 'rgba(42, 157, 143, 0.035)',
   mapStyle: 'https://tiles.openfreemap.org/styles/dark',
-  mapBg: '#0B1217',
+  mapBg: '#111827',
 };
 
+/** «Петергоф: Балтика и золото» — светлая тема (оттенки темнее, чтобы контраст текста был не ниже 4.5:1) */
 export const lightPalette: Palette = {
   scheme: 'light',
-  bg: '#F2F5F7',
-  glass: 'rgba(255, 255, 255, 0.88)',
-  border: 'rgba(12, 35, 48, 0.09)',
-  text: '#0B1A22',
-  textSecondary: '#3B4C56',
-  muted: '#687983',
-  faint: '#A3B0B7',
-  fill: 'rgba(12, 35, 48, 0.06)',
-  accent: '#0093B0',
+  bg: '#F4F6F9',
+  glass: 'rgba(255, 255, 255, 0.9)',
+  border: 'rgba(15, 26, 44, 0.1)',
+  text: '#0F1A2C',
+  textSecondary: '#334155',
+  muted: '#5B697D',
+  faint: '#94A3B8',
+  fill: 'rgba(15, 26, 44, 0.06)',
+  accent: '#8A6224',
   onAccent: '#FFFFFF',
-  accentSoft: 'rgba(0,147,176,0.11)',
-  success: '#17955C',
-  warn: '#D27509',
+  accentSoft: 'rgba(158, 113, 43, 0.12)',
+  success: '#1D766C',
+  warn: '#B4532F',
   onWarn: '#FFFFFF',
-  danger: '#D6453D',
-  glowA: 'rgba(36, 130, 255, 0.08)',
-  glowB: 'rgba(126, 91, 255, 0.05)',
-  glowC: 'rgba(0, 170, 190, 0.06)',
+  danger: '#B83232',
+  onDanger: '#FFFFFF',
+  glowA: 'rgba(59, 110, 200, 0.07)',
+  glowB: 'rgba(212, 163, 89, 0.07)',
+  glowC: 'rgba(42, 157, 143, 0.04)',
   mapStyle: 'https://tiles.openfreemap.org/styles/positron',
-  mapBg: '#E8EDF0',
+  mapBg: '#E9EDF2',
 };
 
 export type ThemePreference = 'system' | 'light' | 'dark';

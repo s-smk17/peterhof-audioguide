@@ -145,7 +145,7 @@ export default function GuideScreen({
       />
       <LinearGradient
         colors={[
-          colors.scheme === 'dark' ? 'rgba(5,9,13,0.55)' : 'rgba(242,245,247,0.55)',
+          colors.scheme === 'dark' ? 'rgba(12,17,28,0.55)' : 'rgba(244,246,249,0.55)',
           colors.bg,
         ]}
         locations={[0, 0.75]}

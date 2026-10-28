@@ -46,8 +46,8 @@ info."UIBackgroundModes" = ["location", "audio"]
 
 [tool.flet.web]
 pwa_short_name = "Петергоф"
-pwa_background_color = "#05090D"
-pwa_theme_color = "#05090D"
+pwa_background_color = "#0C111C"
+pwa_theme_color = "#0C111C"
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]

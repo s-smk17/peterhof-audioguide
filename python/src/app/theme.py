@@ -31,6 +31,8 @@ class Palette:
     warn: str
     on_warn: str
     danger: str
+    on_danger: str
+    """Текст на красной кнопке"""
     glow_a: str
     glow_b: str
     glow_c: str
@@ -39,52 +41,56 @@ class Palette:
     map_bg: str
 
 
+# «Петергоф: Балтика и золото» — тёмная тема
 DARK = Palette(
     scheme="dark",
-    bg="#05090D",
-    glass=rgba(13, 20, 25, 0.72),
-    border=rgba(255, 255, 255, 0.12),
-    text="#F5F8FA",
-    text_secondary="#A5B0B6",
-    muted="#82909A",
-    faint="#5A6870",
-    fill=rgba(255, 255, 255, 0.08),
-    accent="#63E6FF",
-    on_accent="#061015",
-    accent_soft=rgba(99, 230, 255, 0.13),
-    success="#67D9A1",
-    warn="#FFB86B",
-    on_warn="#1A1004",
-    danger="#FF7A7A",
-    glow_a=rgba(36, 130, 255, 0.10),
-    glow_b=rgba(126, 91, 255, 0.07),
-    glow_c=rgba(49, 220, 210, 0.045),
+    bg="#0C111C",
+    glass=rgba(20, 28, 46, 0.72),
+    border="#263550",
+    text="#F1F5F9",
+    text_secondary="#CBD5E1",
+    muted="#94A3B8",
+    faint="#64748B",
+    fill=rgba(148, 163, 184, 0.1),
+    accent="#D4A359",
+    on_accent="#080D17",
+    accent_soft=rgba(212, 163, 89, 0.14),
+    success="#2A9D8F",
+    warn="#D96B43",
+    on_warn="#080D17",
+    danger="#F07167",
+    on_danger="#080D17",
+    glow_a=rgba(59, 110, 200, 0.09),
+    glow_b=rgba(212, 163, 89, 0.05),
+    glow_c=rgba(42, 157, 143, 0.035),
     map_tiles="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",
-    map_bg="#0B1217",
+    map_bg="#111827",
 )
 
+# Светлая тема: оттенки темнее, чтобы контраст текста был не ниже 4.5:1
 LIGHT = Palette(
     scheme="light",
-    bg="#F2F5F7",
-    glass=rgba(255, 255, 255, 0.88),
-    border=rgba(12, 35, 48, 0.09),
-    text="#0B1A22",
-    text_secondary="#3B4C56",
-    muted="#687983",
-    faint="#A3B0B7",
-    fill=rgba(12, 35, 48, 0.06),
-    accent="#0093B0",
+    bg="#F4F6F9",
+    glass=rgba(255, 255, 255, 0.9),
+    border=rgba(15, 26, 44, 0.1),
+    text="#0F1A2C",
+    text_secondary="#334155",
+    muted="#5B697D",
+    faint="#94A3B8",
+    fill=rgba(15, 26, 44, 0.06),
+    accent="#8A6224",
     on_accent="#FFFFFF",
-    accent_soft=rgba(0, 147, 176, 0.11),
-    success="#17955C",
-    warn="#D27509",
+    accent_soft=rgba(158, 113, 43, 0.12),
+    success="#1D766C",
+    warn="#B4532F",
     on_warn="#FFFFFF",
-    danger="#D6453D",
-    glow_a=rgba(36, 130, 255, 0.08),
-    glow_b=rgba(126, 91, 255, 0.05),
-    glow_c=rgba(0, 170, 190, 0.06),
+    danger="#B83232",
+    on_danger="#FFFFFF",
+    glow_a=rgba(59, 110, 200, 0.07),
+    glow_b=rgba(212, 163, 89, 0.07),
+    glow_c=rgba(42, 157, 143, 0.04),
     map_tiles="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
-    map_bg="#E8EDF0",
+    map_bg="#E9EDF2",
 )
 
 

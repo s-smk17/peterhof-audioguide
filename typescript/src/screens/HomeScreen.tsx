@@ -49,7 +49,7 @@ export function getRouteBadge(
   if (tracking.status === 'on-route') {
     return {
       label: 'НА МАРШРУТЕ',
-      color: colors.accent,
+      color: colors.success,
       hint: 'Рассказ начнётся сам у каждой точки',
     };
   }
@@ -174,7 +174,7 @@ export default function HomeScreen({
               <Icon
                 name={audio.playing ? 'pause' : 'play'}
                 size={20}
-                color="#061015"
+                color="#080D17"
               />
             </Pressable>
           </View>
@@ -307,7 +307,7 @@ const useStyles = makeStyles((c) => ({
 
   heroShade: {
     ...StyleSheet.absoluteFill,
-    backgroundColor: 'rgba(0, 6, 10, 0.42)',
+    backgroundColor: 'rgba(8, 13, 23, 0.45)',
   },
 
   heroContent: {
@@ -318,7 +318,7 @@ const useStyles = makeStyles((c) => ({
 
   // Текст поверх фото — всегда светлый, в любой теме
   heroSmall: {
-    color: '#63E6FF',
+    color: '#F3C77C',
     fontSize: 10,
     fontWeight: '800',
     letterSpacing: 1.8,
@@ -350,7 +350,7 @@ const useStyles = makeStyles((c) => ({
     width: 52,
     height: 52,
     borderRadius: 26,
-    backgroundColor: '#63E6FF',
+    backgroundColor: '#F3C77C',
     alignItems: 'center',
     justifyContent: 'center',
   },
