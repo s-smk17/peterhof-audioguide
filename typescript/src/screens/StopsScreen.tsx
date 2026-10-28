@@ -1,5 +1,5 @@
-import React from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import React, { useState } from 'react';
+import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { Image } from 'expo-image';
 
 import type { GuideAudio } from '../audio/useGuideAudio';
@@ -9,7 +9,7 @@ import { routePoints } from '../data/route';
 import { distanceInMeters } from '../location/routeGeometry';
 import type { RouteTrackingState } from '../location/useRouteTracking';
 import { makeStyles, useTheme } from '../theme';
-import { formatDistance } from '../utils/format';
+import { formatDistance, matchesSearch } from '../utils/format';
 
 export default function StopsScreen({
   audio,
@@ -24,6 +24,11 @@ export default function StopsScreen({
   const styles = useStyles();
   const contentStyle = useScrollContentStyle();
   const { position } = tracking;
+  const [query, setQuery] = useState('');
+
+  const shown = routePoints
+    .map((point, index) => ({ point, index }))
+    .filter(({ point }) => matchesSearch(point.name, query));
 
   return (
     <ScrollView
@@ -50,11 +55,33 @@ export default function StopsScreen({
         </View>
       </Glass>
 
-      {routePoints.map((point, index) => {
+      <View style={styles.search}>
+        <Text style={styles.searchIcon}>⌕</Text>
+        <TextInput
+          style={styles.searchInput}
+          value={query}
+          onChangeText={setQuery}
+          placeholder="Поиск по названию"
+          placeholderTextColor={colors.faint}
+          autoCorrect={false}
+          returnKeyType="search"
+        />
+        {query !== '' && (
+          <Pressable onPress={() => setQuery('')} hitSlop={10}>
+            <Text style={styles.searchClear}>✕</Text>
+          </Pressable>
+        )}
+      </View>
+
+      {shown.length === 0 && (
+        <Text style={styles.empty}>Ничего не нашлось</Text>
+      )}
+
+      {shown.map(({ point, index }, shownIndex) => {
         const done = completed.includes(index);
         const current = index === audio.currentIndex;
         const playingNow = current && audio.playing;
-        const isLast = index === routePoints.length - 1;
+        const isLast = shownIndex === shown.length - 1;
         const distance =
           position && point.latitude != null && point.longitude != null
             ? distanceInMeters(
@@ -166,6 +193,47 @@ const useStyles = makeStyles((c) => ({
     color: c.accent,
     fontWeight: '800',
     fontSize: 12,
+  },
+
+  search: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    height: 46,
+    paddingHorizontal: 14,
+    marginBottom: 16,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: c.border,
+    backgroundColor: c.glass,
+  },
+
+  searchIcon: {
+    color: c.muted,
+    fontSize: 18,
+    fontWeight: '700',
+  },
+
+  searchInput: {
+    flex: 1,
+    height: '100%',
+    color: c.text,
+    fontSize: 15,
+    // в браузере у поля ввода своя рамка при фокусе — убираем
+    outlineStyle: 'none',
+  } as object,
+
+  searchClear: {
+    color: c.muted,
+    fontSize: 15,
+    fontWeight: '800',
+  },
+
+  empty: {
+    color: c.muted,
+    fontSize: 14,
+    textAlign: 'center',
+    marginTop: 20,
   },
 
   row: {

@@ -37,3 +37,11 @@ export function lookHint(
     ? { arrow: '←', text: 'Смотрите в левое окно' }
     : { arrow: '→', text: 'Смотрите в правое окно' };
 }
+
+/** Поиск остановки по названию: без учёта регистра, «ё» = «е», кавычки не важны */
+export function matchesSearch(name: string, query: string) {
+  const normalize = (text: string) =>
+    text.toLowerCase().replace(/ё/g, 'е').replace(/[«»"]/g, '').trim();
+  const q = normalize(query);
+  return q === '' || normalize(name).includes(q);
+}

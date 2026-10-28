@@ -7,7 +7,7 @@ import flet as ft
 from app.audio import AudioState
 from app.controller import Progress
 from app.data.route import ROUTE_POINTS
-from app.format import format_distance
+from app.format import format_distance, matches_search
 from app.geometry import distance_in_meters
 from app.theme import use_colors
 from app.tracking import TrackingState
@@ -27,6 +27,46 @@ def StopsScreen(
     completed = progress.completed
     position = tracking.position
     total = len(ROUTE_POINTS)
+    query, set_query = ft.use_state("")
+    shown = [(index, point) for index, point in enumerate(ROUTE_POINTS) if matches_search(point.name, query)]
+
+    search = ft.Container(
+        height=46,
+        padding=ft.Padding.symmetric(horizontal=14),
+        margin=ft.Margin.only(bottom=16),
+        border_radius=16,
+        border=ft.Border.all(1, colors.border),
+        bgcolor=colors.glass,
+        content=ft.Row(
+            [
+                ft.Text("⌕", size=18, weight=ft.FontWeight.W_700, color=colors.muted),
+                ft.TextField(
+                    value=query,
+                    on_change=lambda e: set_query(e.control.value or ""),
+                    hint_text="Поиск по названию",
+                    hint_style=ft.TextStyle(color=colors.faint, size=15),
+                    text_style=ft.TextStyle(color=colors.text, size=15),
+                    border=ft.InputBorder.NONE,
+                    dense=True,
+                    autocorrect=False,
+                    cursor_color=colors.accent,
+                    expand=True,
+                ),
+                *(
+                    [
+                        ft.Container(
+                            on_click=lambda _: set_query(""),
+                            content=ft.Text("✕", size=15, weight=ft.FontWeight.W_800, color=colors.muted),
+                        )
+                    ]
+                    if query
+                    else []
+                ),
+            ],
+            spacing=8,
+            vertical_alignment=ft.CrossAxisAlignment.CENTER,
+        ),
+    )
 
     header = Glass(
         ft.Row(
@@ -55,11 +95,11 @@ def StopsScreen(
     )
 
     rows: list[ft.Control] = []
-    for index, point in enumerate(ROUTE_POINTS):
+    for shown_index, (index, point) in enumerate(shown):
         done = index in completed
         current = index == audio.current_index
         playing_now = current and audio.playing
-        is_last = index == total - 1
+        is_last = shown_index == len(shown) - 1
 
         distance = (
             distance_in_meters(position.latitude, position.longitude, point.latitude, point.longitude)
@@ -175,6 +215,16 @@ def StopsScreen(
         )
 
     return scroll_content(
-        [TopBar("Маршрут", f"{total} остановок · нажмите, чтобы слушать"), header, *rows],
+        [
+            TopBar("Маршрут", f"{total} остановок · нажмите, чтобы слушать"),
+            header,
+            search,
+            *(
+                [ft.Text("Ничего не нашлось", size=14, color=colors.muted, text_align=ft.TextAlign.CENTER)]
+                if not shown
+                else []
+            ),
+            *rows,
+        ],
         bottom_space,
     )

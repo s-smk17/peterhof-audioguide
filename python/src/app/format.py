@@ -46,3 +46,16 @@ def look_hint(side: Optional[str], direction: int) -> Optional[tuple[str, str]]:
 
     left = (side == "left") == (direction == 1)
     return ("←", "Смотрите в левое окно") if left else ("→", "Смотрите в правое окно")
+
+
+def matches_search(name: str, query: str) -> bool:
+    """Поиск остановки по названию: без учёта регистра, «ё» = «е», кавычки не важны."""
+
+    def normalize(text: str) -> str:
+        text = text.lower().replace("ё", "е")
+        for ch in "«»\"":
+            text = text.replace(ch, "")
+        return text.strip()
+
+    q = normalize(query)
+    return q == "" or q in normalize(name)

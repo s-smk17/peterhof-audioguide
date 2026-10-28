@@ -264,3 +264,17 @@ def test_look_hint_flips_on_way_back():
     assert look_hint("right", 1) == ("→", "Смотрите в правое окно")
     assert look_hint("right", -1) == ("←", "Смотрите в левое окно")
     assert look_hint("ahead", -1) == ("↑", "Смотрите вперёд")
+
+
+# --- поиск остановки ---
+
+
+def test_matches_search():
+    from app.format import matches_search
+
+    assert matches_search("Метро «Проспект Ветеранов»", "")
+    assert matches_search("Метро «Проспект Ветеранов»", "  ветеранов ")
+    assert matches_search("Рогачёвский переулок", "рогачев")
+    assert matches_search("Метро «Проспект Ветеранов»", "«проспект")
+    assert not matches_search("Улица Связи", "стрельна")
+    assert sum(matches_search(p.name, "федюнинского") for p in ROUTE_POINTS) == 3
