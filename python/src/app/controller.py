@@ -8,6 +8,7 @@ import flet as ft
 
 from app.audio import BACK_ON_ROUTE_AUDIO, OFF_ROUTE_AUDIO, AudioState, GuideAudio
 from app.data.route import ROUTE_POINTS
+from app.demo import DemoRide, DemoState
 from app.geometry import StopDistance, distance_in_meters, find_nearest_stop, find_next_stop
 from app.location import LocationService
 from app.settings import Settings, Storage, Trip, next_trip
@@ -77,6 +78,15 @@ class Controller:
         )
         self.location = LocationService(page, self.tracker)
 
+        # Демо-поездка: своя «поездка» в памяти, настоящую и прогресс не трогает
+        self.demo_state = DemoState()
+        self.demo_trip = Trip()
+        self.demo = DemoRide(
+            self.demo_state,
+            on_point=lambda lat, lon, speed: self.tracker.handle_location(lat, lon, 5, speed),
+            on_new_session=self._on_demo_session,
+        )
+
         self._walk_request: Optional[tuple[float, float, int]] = None
         self._walk_request_id = 0
         self.launcher = ft.UrlLauncher()
@@ -124,11 +134,38 @@ class Controller:
         await self.storage.save_progress([])
         await self.storage.save_trip(self.trip)
 
+    # --- демо-поездка ---
+
+    async def set_demo(self, enabled: bool) -> None:
+        if enabled:
+            self.location.suspended = True
+            self.location.stop()
+            self.demo.set_enabled(True)
+        else:
+            self.demo.set_enabled(False)
+            self.location.suspended = False
+            self.tracker.reset()
+            await self.location.start()
+
+    def _on_demo_session(self) -> None:
+        # Новый заезд — слежение с чистого листа, рассказы снова запускаются сами
+        self.tracker.reset("demo")
+        self.demo_trip = Trip()
+        self.audio.clear_queue()
+
     # --- события поездки ---
 
     def _on_stop_reached(self, index: int, direction: int) -> None:
-        trip = next_trip(self.trip, index, direction, int(time.time() * 1000))
+        demo = self.demo_state.enabled
+        trip = next_trip(
+            self.demo_trip if demo else self.trip, index, direction, int(time.time() * 1000)
+        )
         if trip is None:
+            return
+
+        if demo:
+            self.demo_trip = trip
+            self.page.run_task(self.audio.arrive_at, index, self.settings.auto_play)
             return
 
         self.trip = trip

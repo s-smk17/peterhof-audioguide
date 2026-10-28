@@ -18,6 +18,8 @@ class LocationService:
         # Поток отметок включается, только когда задан on_position_change —
         # поэтому сначала создаём без него, а подключаем после разрешений
         self._geo = ftg.Geolocator()
+        self.suspended = False
+        """Идёт демо-поездка: отметки настоящего GPS не нужны"""
 
     @property
     def _state(self):
@@ -27,11 +29,13 @@ class LocationService:
         self._handle(e.position)
 
     def _handle(self, p: ftg.GeolocatorPosition) -> None:
-        if p.latitude is None or p.longitude is None:
+        if self.suspended or p.latitude is None or p.longitude is None:
             return
         self._tracker.handle_location(p.latitude, p.longitude, p.accuracy, p.speed)
 
     def _on_error(self, e) -> None:
+        if self.suspended:
+            return
         message = str(e.data or "").lower()
         if "disabled" in message:
             self._state.mode = "disabled"
@@ -87,12 +91,19 @@ class LocationService:
         return ftg.GeolocatorConfiguration(accuracy=accuracy, distance_filter=5), "foreground"
 
     async def start(self) -> None:
+        if self.suspended:
+            return
         state = self._state
         state.mode = "starting"
 
+        def set_mode(mode: str) -> None:
+            # Пока ждали ответа, могли включить демо-поездку — её режим не трогаем
+            if not self.suspended:
+                state.mode = mode
+
         try:
             if not await self._geo.is_location_service_enabled():
-                state.mode = "disabled"
+                set_mode("disabled")
                 return
 
             status = await self._geo.get_permission_status()
@@ -100,7 +111,7 @@ class LocationService:
                 status = await self._geo.request_permission()
 
             if status in (Status.DENIED, Status.DENIED_FOREVER):
-                state.mode = "denied"
+                set_mode("denied")
                 return
 
             configuration, mode = self._configuration(status)
@@ -114,19 +125,29 @@ class LocationService:
                 except Exception:
                     pass
 
+            # Пока ждали разрешения, включили демо-поездку — GPS не нужен
+            if self.suspended:
+                return
+
             self._geo.configuration = configuration
             self._geo.on_position_change = self._on_position
             self._geo.on_error = self._on_error
             self._geo.update()
             state.mode = mode
         except Exception as error:
+            if self.suspended:
+                return
             message = str(error).lower()
             state.mode = "denied" if "denied" in message else "disabled"
 
     def stop(self) -> None:
         self._geo.on_position_change = None
         self._geo.on_error = None
-        self._geo.update()
+        try:
+            self._geo.update()
+        except Exception:
+            # GPS ещё не запускали
+            pass
 
     async def open_settings(self) -> None:
         if self._page.web:

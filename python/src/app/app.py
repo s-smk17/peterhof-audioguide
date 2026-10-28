@@ -4,6 +4,7 @@ import flet as ft
 
 from app.audio import AudioState
 from app.controller import Controller, Progress, WalkState, navigation_for
+from app.demo import DemoState
 from app.settings import Settings
 from app.tracking import TrackingState
 from app.screens.guide import GuideScreen
@@ -25,6 +26,7 @@ def AppContent(
     settings: Settings,
     progress: Progress,
     walk: WalkState,
+    demo: DemoState,
     page_width: float,
 ):
     colors = ft.use_context(ThemeContext)
@@ -87,7 +89,10 @@ def AppContent(
             tracking,
             bottom_space,
             page.web,
+            demo,
             on_update_settings=update_settings,
+            on_set_demo=lambda enabled: run(c.set_demo, enabled),
+            on_set_demo_speed=lambda speed: setattr(c.demo_state, "speed", speed),
             on_reset_progress=lambda: run(c.reset_progress),
             on_open_gps_settings=lambda: run(c.location.open_settings),
             on_open_url=lambda url: open_url(url),
@@ -99,9 +104,13 @@ def AppContent(
             walk,
             progress,
             audio,
+            demo,
             bottom_space,
             width,
             on_retry_gps=lambda: run(c.retry_gps),
+            on_demo_pause=c.demo.pause,
+            on_demo_resume=c.demo.resume,
+            on_demo_restart=c.demo.restart,
             on_toggle=toggle,
             on_open_guide=lambda: set_tab("guide"),
             on_expand_map=lambda: set_map_open(True),
@@ -184,5 +193,5 @@ def App(c: Controller, settings: Settings):
 
     return ThemeContext(
         colors,
-        lambda: AppContent(c, c.tracking, c.audio_state, settings, c.progress, c.walk, page_width),
+        lambda: AppContent(c, c.tracking, c.audio_state, settings, c.progress, c.walk, c.demo_state, page_width),
     )

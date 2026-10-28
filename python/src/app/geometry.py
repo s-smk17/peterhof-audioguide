@@ -68,6 +68,20 @@ def project_on_route(latitude: float, longitude: float) -> RouteProjection:
     return RouteProjection(offset=best_offset, along=best_along)
 
 
+def point_at_along(along: float) -> tuple[float, float]:
+    """Точка на линии маршрута в along метрах от начала (для демо-поездки): (широта, долгота)."""
+    target = min(max(along, 0.0), ROUTE_LENGTH)
+    i = 0
+    while i < len(_CUMULATIVE) - 2 and _CUMULATIVE[i + 1] < target:
+        i += 1
+
+    segment = _CUMULATIVE[i + 1] - _CUMULATIVE[i]
+    t = (target - _CUMULATIVE[i]) / segment if segment > 0 else 0.0
+    lat1, lon1 = ROUTE_SHAPE[i]
+    lat2, lon2 = ROUTE_SHAPE[i + 1]
+    return lat1 + (lat2 - lat1) * t, lon1 + (lon2 - lon1) * t
+
+
 STOP_ALONG: list[Optional[float]] = [
     project_on_route(p.latitude, p.longitude).along
     if p.latitude is not None and p.longitude is not None

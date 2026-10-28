@@ -7,6 +7,8 @@ import flet as ft
 from app.audio import AudioState
 from app.controller import Navigation, Progress, WalkState
 from app.data.route import ROUTE_POINTS
+from app.demo import DemoState
+from app.geometry import ROUTE_LENGTH
 from app.format import format_distance
 from app.theme import Palette, use_colors
 from app.tracking import TrackingState
@@ -39,9 +41,13 @@ def HomeScreen(
     walk: WalkState,
     progress: Progress,
     audio: AudioState,
+    demo: DemoState,
     bottom_space: float,
     width: float,
     on_retry_gps: Callable,
+    on_demo_pause: Callable,
+    on_demo_resume: Callable,
+    on_demo_restart: Callable,
     on_toggle: Callable,
     on_open_guide: Callable,
     on_expand_map: Callable,
@@ -70,16 +76,18 @@ def HomeScreen(
         ft.Container(width=8, height=8, border_radius=4, bgcolor=color),
         ft.Column(status_texts, spacing=3, expand=True),
     ]
-    if needs_retry:
-        status_row.append(
-            ft.Container(
-                padding=ft.Padding.symmetric(horizontal=12, vertical=8),
-                border_radius=100,
-                bgcolor=colors.fill,
-                on_click=lambda _: on_retry_gps(),
-                content=Label("ПОВТОРИТЬ", colors.text, size=10, spacing=1, weight=ft.FontWeight.W_800),
-            )
+
+    def pill(text: str, on_click: Callable):
+        return ft.Container(
+            padding=ft.Padding.symmetric(horizontal=12, vertical=8),
+            border_radius=100,
+            bgcolor=colors.fill,
+            on_click=lambda _: on_click(),
+            content=Label(text, colors.text, size=10, spacing=1, weight=ft.FontWeight.W_800),
         )
+
+    if needs_retry:
+        status_row.append(pill("ПОВТОРИТЬ", on_retry_gps))
 
     status = Glass(
         ft.Row(status_row, spacing=12),
@@ -88,6 +96,37 @@ def HomeScreen(
         padding=14,
         margin=ft.Margin.only(bottom=14),
     )
+
+    # Плашка «Демо»: чтобы не спутать с настоящей поездкой, и кнопки управления
+    demo_card = None
+    if demo.enabled:
+        state = "приехали" if demo.finished else "пауза" if demo.paused else f"едем ×{demo.speed}"
+        demo_row: list[ft.Control] = [
+            ft.Column(
+                [
+                    Label(f"ДЕМО · {state.upper()}", colors.warn, size=11),
+                    ft.Text(
+                        f"Не настоящая поездка · {format_distance(demo.along)} из {format_distance(ROUTE_LENGTH)}",
+                        size=12,
+                        color=colors.muted,
+                    ),
+                ],
+                spacing=3,
+                expand=True,
+            )
+        ]
+        if not demo.finished:
+            demo_row.append(
+                pill("ПРОДОЛЖИТЬ", on_demo_resume) if demo.paused else pill("ПАУЗА", on_demo_pause)
+            )
+        demo_row.append(pill("С НАЧАЛА", on_demo_restart))
+        demo_card = Glass(
+            ft.Row(demo_row, spacing=8),
+            colors,
+            border_color=colors.warn,
+            padding=14,
+            margin=ft.Margin.only(bottom=14),
+        )
 
     map_card = Glass(
         ft.Column(
@@ -209,6 +248,7 @@ def HomeScreen(
     return scroll_content(
         [
             TopBar("Добро пожаловать", "Маршрут 343Э · Петергоф"),
+            *([demo_card] if demo_card else []),
             status,
             map_card,
             hero,

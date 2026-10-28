@@ -69,6 +69,23 @@ export function projectOnRoute(
   return best;
 }
 
+/** Точка на линии маршрута в along метрах от начала (для демо-поездки) */
+export function pointAtAlong(along: number): { latitude: number; longitude: number } {
+  const target = Math.min(Math.max(along, 0), ROUTE_LENGTH);
+  let i = 0;
+  while (i < CUMULATIVE.length - 2 && CUMULATIVE[i + 1] < target) i++;
+
+  const segment = CUMULATIVE[i + 1] - CUMULATIVE[i];
+  const t = segment > 0 ? (target - CUMULATIVE[i]) / segment : 0;
+  const [lat1, lon1] = ROUTE_SHAPE[i];
+  const [lat2, lon2] = ROUTE_SHAPE[i + 1];
+
+  return {
+    latitude: lat1 + (lat2 - lat1) * t,
+    longitude: lon1 + (lon2 - lon1) * t,
+  };
+}
+
 /** Положение каждой остановки вдоль маршрута, м (null — нет координат) */
 export const STOP_ALONG: (number | null)[] = routePoints.map((point) =>
   point.latitude != null && point.longitude != null

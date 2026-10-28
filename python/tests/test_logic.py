@@ -16,8 +16,10 @@ from app.geometry import (
     distance_in_meters,
     find_nearest_stop,
     find_next_stop,
+    point_at_along,
     project_on_route,
 )
+from app.demo import BUS_SPEED, DEMO_SPEEDS, MAX_STEP_METERS, tick_seconds
 from app.settings import TRIP_GAP_MS, Trip, next_trip
 from app.tracking import RouteTracker, TrackingState
 
@@ -197,3 +199,50 @@ def test_new_trip_after_long_pause_or_turning_back():
     trip = Trip(played=[3], direction=1, updated_at=1_000)
     assert next_trip(trip, 3, 1, now_ms=1_000 + TRIP_GAP_MS + 1).played == [3]
     assert next_trip(trip, 3, -1, now_ms=2_000).played == [3]
+
+
+# --- демо-поездка ---
+
+
+def test_point_at_along_lies_on_route():
+    for along in [0, 1234.5, ROUTE_LENGTH / 2, ROUTE_LENGTH - 10, ROUTE_LENGTH]:
+        lat, lon = point_at_along(along)
+        projection = project_on_route(lat, lon)
+        assert projection.offset < 1
+        assert projection.along == pytest.approx(along, abs=1)
+
+
+def test_point_at_along_clamps_to_route_ends():
+    assert point_at_along(-100) == pytest.approx(tuple(ROUTE_SHAPE[0]))
+    assert point_at_along(ROUTE_LENGTH + 100) == pytest.approx(tuple(ROUTE_SHAPE[-1]))
+
+
+def test_demo_step_never_skips_a_stop():
+    # Окно срабатывания при «У остановки» — 50 м в каждую сторону, шаг меньше
+    for speed in DEMO_SPEEDS:
+        step = BUS_SPEED * speed * tick_seconds(speed)
+        assert step <= MAX_STEP_METERS + 1e-9
+        assert tick_seconds(speed) <= 1
+
+
+def test_demo_ride_triggers_every_stop_in_order():
+    reached = []
+    tracker = RouteTracker(
+        TrackingState(),
+        trigger_distance=lambda: 50,
+        on_stop_reached=lambda index, direction: reached.append((index, direction)),
+        on_left_route=lambda: None,
+        on_returned_to_route=lambda: None,
+    )
+    speed = max(DEMO_SPEEDS)
+    step = BUS_SPEED * speed * tick_seconds(speed)
+    along = 0.0
+    while True:
+        lat, lon = point_at_along(along)
+        tracker.handle_location(lat, lon, 5, BUS_SPEED * speed)
+        if along >= ROUTE_LENGTH:
+            break
+        along = min(along + step, ROUTE_LENGTH)
+
+    assert [index for index, _ in reached] == list(range(len(ROUTE_POINTS)))
+    assert all(direction == 1 for _, direction in reached[1:])

@@ -22,7 +22,8 @@ const MAX_ACCURACY_METERS = 75;
 export type RouteStatus = 'searching' | 'on-route' | 'off-route';
 
 export type RouteTrackingState = {
-  mode: TrackingMode | 'starting';
+  /** demo — вместо GPS едет точка демо-поездки */
+  mode: TrackingMode | 'starting' | 'demo';
   approximate: boolean;
   status: RouteStatus;
   /** Расстояние до линии маршрута, м */
@@ -75,17 +76,23 @@ function findStopNearby(
   return found;
 }
 
-export function useRouteTracking(handlers: Handlers) {
-  const [state, setState] = useState<RouteTrackingState>({
-    mode: 'starting',
-    approximate: false,
-    status: 'searching',
-    offset: null,
-    accuracy: null,
-    position: null,
-    along: null,
-    direction: 1,
-  });
+const INITIAL: RouteTrackingState = {
+  mode: 'starting',
+  approximate: false,
+  status: 'searching',
+  offset: null,
+  accuracy: null,
+  position: null,
+  along: null,
+  direction: 1,
+};
+
+/**
+ * demoSession: null — настоящий GPS; число — идёт демо-поездка (новое число —
+ * новый заезд с начала, состояние слежения сбрасывается).
+ */
+export function useRouteTracking(handlers: Handlers, demoSession: number | null = null) {
+  const [state, setState] = useState<RouteTrackingState>(INITIAL);
 
   // Обработчики и счётчики живут в ref: отметки GPS приходят и в фоне,
   // вне цикла рендера React
@@ -100,8 +107,12 @@ export function useRouteTracking(handlers: Handlers) {
   // Объявляли «вы не на маршруте» — тогда при возврате скажем «снова на маршруте»
   const announcedLeftRef = useRef(false);
   const modeRef = useRef<RouteTrackingState['mode']>('starting');
+  const demoRef = useRef(false);
 
-  const handleLocation = useCallback((location: LocationObject) => {
+  const handleLocation = useCallback((location: LocationObject, fromDemo = false) => {
+    // Во время демо-поездки отметки настоящего GPS не учитываем, и наоборот
+    if (fromDemo !== demoRef.current) return;
+
     const { latitude, longitude } = location.coords;
     const accuracy = location.coords.accuracy ?? MAX_ACCURACY_METERS;
     const { offset, along } = projectOnRoute(latitude, longitude);
@@ -198,14 +209,21 @@ export function useRouteTracking(handlers: Handlers) {
   }, []);
 
   const start = useCallback(async () => {
+    if (demoRef.current) return;
     modeRef.current = 'starting';
     setState((previous) => ({ ...previous, mode: 'starting' }));
 
     try {
       const { mode, approximate } = await startTracking();
+      // Пока ждали разрешения, включили демо-поездку — GPS не нужен
+      if (demoRef.current) {
+        stopTracking();
+        return;
+      }
       modeRef.current = mode;
       setState((previous) => ({ ...previous, mode, approximate }));
     } catch {
+      if (demoRef.current) return;
       modeRef.current = 'disabled';
       setState((previous) => ({ ...previous, mode: 'disabled' }));
     }
@@ -227,14 +245,55 @@ export function useRouteTracking(handlers: Handlers) {
   }, [start]);
 
   useEffect(() => {
-    const unsubscribe = subscribeToLocation(handleLocation);
-    start();
+    const unsubscribe = subscribeToLocation((location) => handleLocation(location));
 
     return () => {
       unsubscribe();
       stopTracking();
     };
-  }, [handleLocation, start]);
+  }, [handleLocation]);
 
-  return { ...state, retry: start };
+  // Запуск GPS или демо-поездки. При каждой смене — слежение с чистого листа
+  useEffect(() => {
+    statusRef.current = 'searching';
+    offCountRef.current = 0;
+    lastStopRef.current = null;
+    directionRef.current = 1;
+    directionAnchorRef.current = null;
+    announcedLeftRef.current = false;
+    demoRef.current = demoSession != null;
+
+    if (demoSession != null) {
+      stopTracking();
+      modeRef.current = 'demo';
+      setState({ ...INITIAL, mode: 'demo' });
+    } else {
+      setState(INITIAL);
+      start();
+    }
+  }, [demoSession, start]);
+
+  /** Отметка демо-поездки — обрабатывается так же, как отметка GPS */
+  const feedDemo = useCallback(
+    (point: { latitude: number; longitude: number; speed: number }) =>
+      handleLocation(
+        {
+          timestamp: Date.now(),
+          mocked: true,
+          coords: {
+            latitude: point.latitude,
+            longitude: point.longitude,
+            altitude: null,
+            accuracy: 5,
+            altitudeAccuracy: null,
+            heading: null,
+            speed: point.speed,
+          },
+        },
+        true
+      ),
+    [handleLocation]
+  );
+
+  return { ...state, retry: start, feedDemo };
 }

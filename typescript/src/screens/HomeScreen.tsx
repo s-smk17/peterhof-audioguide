@@ -8,6 +8,8 @@ import MapView from '../components/MapView';
 import NavigationInfo from '../components/NavigationInfo';
 import { Glass, Icon, TopBar } from '../components/ui';
 import { routePoints } from '../data/route';
+import { ROUTE_LENGTH } from '../location/routeGeometry';
+import type { DemoControls } from '../location/useDemoRide';
 import type { Navigation } from '../location/useNavigation';
 import type { RouteTrackingState } from '../location/useRouteTracking';
 import { makeStyles, useTheme, type Palette } from '../theme';
@@ -64,6 +66,7 @@ type Props = {
   navigation: Navigation;
   completed: number[];
   audio: GuideAudio;
+  demo: DemoControls;
   onRetryGps: () => void;
   onOpenGuide: () => void;
   onExpandMap: () => void;
@@ -74,6 +77,7 @@ export default function HomeScreen({
   navigation,
   completed,
   audio,
+  demo,
   onRetryGps,
   onOpenGuide,
   onExpandMap,
@@ -96,6 +100,8 @@ export default function HomeScreen({
       scrollEnabled={!mapTouched}
     >
       <TopBar title="Добро пожаловать" subtitle="Маршрут 343Э · Петергоф" />
+
+      {demo.enabled && <DemoCard demo={demo} />}
 
       <Glass style={[styles.status, { borderColor: badge.color }]}>
         <View style={[styles.dot, { backgroundColor: badge.color }]} />
@@ -187,7 +193,53 @@ export default function HomeScreen({
   );
 }
 
+/** Плашка «Демо»: чтобы не спутать с настоящей поездкой, и кнопки управления */
+function DemoCard({ demo }: { demo: DemoControls }) {
+  const colors = useTheme();
+  const styles = useStyles();
+  const { ride } = demo;
+
+  const state = ride.finished
+    ? 'приехали'
+    : ride.paused
+      ? 'пауза'
+      : `едем ×${demo.speed}`;
+
+  return (
+    <Glass style={[styles.status, styles.demo, { borderColor: colors.warn }]}>
+      <View style={{ flex: 1 }}>
+        <Text style={[styles.statusTitle, { color: colors.warn }]}>
+          ДЕМО · {state.toUpperCase()}
+        </Text>
+        <Text style={styles.statusHint}>
+          Не настоящая поездка · {formatDistance(ride.along)} из{' '}
+          {formatDistance(ROUTE_LENGTH)}
+        </Text>
+      </View>
+
+      {!ride.finished && (
+        <Pressable
+          style={styles.retry}
+          onPress={ride.paused ? ride.resume : ride.pause}
+        >
+          <Text style={styles.retryText}>
+            {ride.paused ? 'ПРОДОЛЖИТЬ' : 'ПАУЗА'}
+          </Text>
+        </Pressable>
+      )}
+
+      <Pressable style={styles.retry} onPress={ride.restart}>
+        <Text style={styles.retryText}>С НАЧАЛА</Text>
+      </Pressable>
+    </Glass>
+  );
+}
+
 const useStyles = makeStyles((c) => ({
+  demo: {
+    gap: 8,
+  },
+
   status: {
     flexDirection: 'row',
     alignItems: 'center',

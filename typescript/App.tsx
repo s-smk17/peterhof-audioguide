@@ -12,6 +12,7 @@ import FullscreenMap from './src/components/FullscreenMap';
 import { BottomSpaceContext, MAX_CONTENT_WIDTH } from './src/components/layout';
 import MiniPlayer from './src/components/MiniPlayer';
 import { BackgroundGlow } from './src/components/ui';
+import { useDemoRide, type DemoSpeed } from './src/location/useDemoRide';
 import { useNavigation } from './src/location/useNavigation';
 import { useRouteTracking } from './src/location/useRouteTracking';
 import GuideScreen from './src/screens/GuideScreen';
@@ -64,8 +65,19 @@ function AppContent() {
   const [completed, setCompleted] = useState<number[]>([]);
   const completedRef = useRef<number[]>([]);
   const tripRef = useRef<Trip>(EMPTY_TRIP);
+  // Демо-поездка: своя «поездка» в памяти, настоящую и прогресс не трогает
+  const [demoEnabled, setDemoEnabled] = useState(false);
+  const [demoSpeed, setDemoSpeed] = useState<DemoSpeed>(5);
+  const demoTripRef = useRef<Trip>(EMPTY_TRIP);
+  const feedDemoRef = useRef<(point: { latitude: number; longitude: number; speed: number }) => void>(
+    () => {}
+  );
 
   const audio = useGuideAudio(settings.playbackRate);
+
+  const demo = useDemoRide(demoEnabled, demoSpeed, (point) =>
+    feedDemoRef.current(point)
+  );
 
   // Прогресс и текущая поездка переживают перезапуск приложения
   useEffect(() => {
@@ -96,7 +108,7 @@ function AppContent() {
     triggerDistance: TRIGGER_DISTANCE[settings.triggerTiming],
     onStopReached: (index, direction) => {
       const now = Date.now();
-      let trip = tripRef.current;
+      let trip = demoEnabled ? demoTripRef.current : tripRef.current;
 
       // Давно не было остановок или поехали обратно — это новая поездка,
       // и все рассказы снова запускаются сами
@@ -106,7 +118,15 @@ function AppContent() {
 
       if (trip.played.includes(index)) return;
 
-      setTrip({ played: [...trip.played, index], direction, updatedAt: now });
+      const nextTrip = { played: [...trip.played, index], direction, updatedAt: now };
+
+      if (demoEnabled) {
+        demoTripRef.current = nextTrip;
+        audio.arriveAt(index, settings.autoPlay);
+        return;
+      }
+
+      setTrip(nextTrip);
 
       if (!completedRef.current.includes(index)) {
         setProgress([...completedRef.current, index]);
@@ -121,7 +141,22 @@ function AppContent() {
     onReturnedToRoute: () => {
       if (settings.routeAnnouncements) audio.playNotice(BACK_ON_ROUTE_AUDIO);
     },
-  });
+  }, demoEnabled ? demo.session : null);
+  feedDemoRef.current = tracking.feedDemo;
+
+  // Новый заезд демо — рассказы снова запускаются сами
+  useEffect(() => {
+    demoTripRef.current = EMPTY_TRIP;
+    audio.clearQueue();
+  }, [demoEnabled, demo.session]);
+
+  const demoControls = {
+    enabled: demoEnabled,
+    speed: demoSpeed,
+    ride: demo,
+    setEnabled: setDemoEnabled,
+    setSpeed: setDemoSpeed,
+  };
 
   const navigation = useNavigation(tracking);
 
@@ -154,6 +189,7 @@ function AppContent() {
       screen = (
         <SettingsScreen
           tracking={tracking}
+          demo={demoControls}
           onResetProgress={() => {
             setProgress([]);
             setTrip(EMPTY_TRIP);
@@ -169,6 +205,7 @@ function AppContent() {
           navigation={navigation}
           completed={completed}
           audio={audio}
+          demo={demoControls}
           onRetryGps={tracking.retry}
           onOpenGuide={() => setTab('guide')}
           onExpandMap={() => setMapOpen(true)}

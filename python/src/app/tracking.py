@@ -38,7 +38,7 @@ class TrackingState:
     """То, что видно на экране. Компоненты сами перерисовываются при изменениях."""
 
     mode: str = "starting"
-    """starting | background | foreground | denied | disabled"""
+    """starting | background | foreground | denied | disabled | demo (вместо GPS — демо-поездка)"""
     approximate: bool = False
     status: str = "searching"
     """searching | on-route | off-route"""
@@ -72,6 +72,24 @@ class RouteTracker:
         self._last_stop: Optional[int] = None
         self._direction_anchor: Optional[float] = None
         # Объявляли «вы не на маршруте» — тогда при возврате скажем «снова на маршруте»
+        self._announced_left = False
+
+    def reset(self, mode: str = "starting") -> None:
+        """Слежение с чистого листа: при включении и выключении демо-поездки
+        и при каждом её заезде «с начала»."""
+        state = self.state
+        state.mode = mode
+        state.approximate = False
+        state.status = "searching"
+        state.offset = None
+        state.accuracy = None
+        state.position = None
+        state.along = None
+        state.direction = 1
+
+        self._off_count = 0
+        self._last_stop = None
+        self._direction_anchor = None
         self._announced_left = False
 
     def handle_location(

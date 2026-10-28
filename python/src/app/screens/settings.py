@@ -4,6 +4,7 @@ from typing import Callable, Optional
 
 import flet as ft
 
+from app.demo import DemoState
 from app.settings import TRIGGER_DISTANCE, Settings
 from app.theme import use_colors
 from app.tracking import TrackingState
@@ -40,6 +41,8 @@ def gps_mode(mode: str, web: bool) -> tuple[str, str, bool]:
             else "Включите геолокацию в настройках телефона",
             False,
         )
+    if mode == "demo":
+        return "Демо", "Идёт демо-поездка — настоящий GPS выключен", True
     return "…", "Запускаем GPS", True
 
 
@@ -49,7 +52,10 @@ def SettingsScreen(
     tracking: TrackingState,
     bottom_space: float,
     web: bool,
+    demo: DemoState,
     on_update_settings: Callable[..., None],
+    on_set_demo: Callable[[bool], None],
+    on_set_demo_speed: Callable[[int], None],
     on_reset_progress: Callable,
     on_open_gps_settings: Callable,
     on_open_url: Callable[[str], None],
@@ -242,6 +248,22 @@ def SettingsScreen(
                 ],
             ),
             section("Геолокация", gps_children),
+            section(
+                "Демо-поездка",
+                [
+                    row(
+                        "Прокатиться без автобуса",
+                        "Точка сама едет по маршруту: рассказы, карта и подсказки работают как в настоящей поездке",
+                        Toggle(demo.enabled, on_set_demo),
+                    ),
+                    block(
+                        "Скорость",
+                        Segmented([(1, "×1"), (5, "×5"), (20, "×20")], demo.speed, on_set_demo_speed),
+                        desc="×1 — как автобус, 30 км/ч",
+                        last=True,
+                    ),
+                ],
+            ),
             section("Данные", data_children),
             section(
                 "О приложении",

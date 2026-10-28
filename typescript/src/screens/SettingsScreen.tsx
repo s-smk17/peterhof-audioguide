@@ -4,6 +4,7 @@ import Constants from 'expo-constants';
 
 import { useScrollContentStyle } from '../components/layout';
 import { Glass, Segmented, Toggle, TopBar } from '../components/ui';
+import type { DemoControls, DemoSpeed } from '../location/useDemoRide';
 import type { RouteTrackingState } from '../location/useRouteTracking';
 import {
   TRIGGER_DISTANCE,
@@ -94,6 +95,11 @@ const GPS_MODE: Record<
     ok: true,
   },
   starting: { value: '…', description: 'Запускаем GPS', ok: true },
+  demo: {
+    value: 'Демо',
+    description: 'Идёт демо-поездка — настоящий GPS выключен',
+    ok: true,
+  },
   denied: {
     value: 'Нет доступа',
     description: IS_WEB
@@ -112,9 +118,11 @@ const GPS_MODE: Record<
 
 export default function SettingsScreen({
   tracking,
+  demo,
   onResetProgress,
 }: {
   tracking: RouteTrackingState;
+  demo: DemoControls;
   onResetProgress: () => void;
 }) {
   const colors = useTheme();
@@ -222,6 +230,25 @@ export default function SettingsScreen({
             last
           />
         )}
+      </Section>
+
+      <Section title="Демо-поездка">
+        <Row
+          title="Прокатиться без автобуса"
+          description="Точка сама едет по маршруту: рассказы, карта и подсказки работают как в настоящей поездке"
+          right={<Toggle value={demo.enabled} onChange={demo.setEnabled} />}
+        />
+        <Block title="Скорость" description="×1 — как автобус, 30 км/ч" last>
+          <Segmented<DemoSpeed>
+            value={demo.speed}
+            onChange={demo.setSpeed}
+            options={[
+              { value: 1, label: '×1' },
+              { value: 5, label: '×5' },
+              { value: 20, label: '×20' },
+            ]}
+          />
+        </Block>
       </Section>
 
       <Section title="Данные">
