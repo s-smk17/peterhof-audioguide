@@ -227,7 +227,7 @@ def HomeScreen(
                         "Ваш прогресс",
                         style=ft.TextStyle(size=21, weight=ft.FontWeight.W_800, color=colors.text, letter_spacing=-0.4),
                     ),
-                    ft.Text(f"{len(completed)} из {len(ROUTE_POINTS)} точек", size=12, color=colors.muted),
+                    ft.Text(f"Прослушано {len(completed)} из {len(ROUTE_POINTS)}", size=12, color=colors.muted),
                 ],
                 spacing=4,
             ),

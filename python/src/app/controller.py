@@ -11,7 +11,7 @@ from app.data.route import ROUTE_POINTS
 from app.demo import DemoRide, DemoState
 from app.geometry import StopDistance, distance_in_meters, find_nearest_stop, find_next_stop
 from app.location import LocationService
-from app.settings import Settings, Storage, Trip, next_trip
+from app.settings import LISTENED_SHARE, Settings, Storage, Trip, next_trip
 from app.tracking import RouteTracker, TrackingState
 from app.walking import REFETCH_AFTER_METERS, WalkingRoute, fetch_walking_route
 
@@ -94,6 +94,12 @@ class Controller:
         self._on_tracking_change = lambda *_: self._update_walking_route()
         self.tracking.subscribe(self._on_tracking_change)
 
+        # «Прослушано»: следим за позицией рассказа
+        self._listen_index = -1
+        self._listen_armed = False
+        self._on_audio_change = lambda *_: self._check_listened()
+        self.audio_state.subscribe(self._on_audio_change)
+
     # --- запуск ---
 
     async def start(self) -> None:
@@ -170,12 +176,33 @@ class Controller:
 
         self.trip = trip
         self.page.run_task(self.storage.save_trip, trip)
+        self.page.run_task(self.audio.arrive_at, index, self.settings.auto_play)
 
-        if index not in self.progress.completed:
+    def _check_listened(self) -> None:
+        """Точка прослушана, когда рассказ дослушан хотя бы до LISTENED_SHARE.
+
+        После смены точки плеер может ещё раз прислать позицию прошлой записи —
+        поэтому считаем, только увидев начало новой (armed)."""
+        audio = self.audio_state
+        index = audio.current_index
+
+        if self._listen_index != index:
+            self._listen_index = index
+            self._listen_armed = False
+        if not self._listen_armed:
+            if audio.current_time > 2:
+                return
+            self._listen_armed = True
+
+        if (
+            audio.playing
+            and not self.demo_state.enabled
+            and audio.duration > 0
+            and audio.current_time / audio.duration >= LISTENED_SHARE
+            and index not in self.progress.completed
+        ):
             self.progress.completed = [*self.progress.completed, index]
             self.page.run_task(self.storage.save_progress, list(self.progress.completed))
-
-        self.page.run_task(self.audio.arrive_at, index, self.settings.auto_play)
 
     def _on_left_route(self) -> None:
         self.audio.clear_queue()

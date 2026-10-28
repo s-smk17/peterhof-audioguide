@@ -256,7 +256,7 @@ export default function SettingsScreen({
           <View style={styles.confirm}>
             <Text style={styles.rowTitle}>Сбросить весь прогресс?</Text>
             <Text style={styles.rowDescription}>
-              Отметки о пройденных точках удалятся
+              Отметки «прослушано» у всех точек удалятся
             </Text>
 
             <View style={styles.confirmButtons}>

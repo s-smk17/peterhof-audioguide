@@ -21,6 +21,7 @@ import SettingsScreen from './src/screens/SettingsScreen';
 import StopsScreen from './src/screens/StopsScreen';
 import {
   EMPTY_TRIP,
+  LISTENED_SHARE,
   loadProgress,
   loadTrip,
   saveProgress,
@@ -127,11 +128,6 @@ function AppContent() {
       }
 
       setTrip(nextTrip);
-
-      if (!completedRef.current.includes(index)) {
-        setProgress([...completedRef.current, index]);
-      }
-
       audio.arriveAt(index, settings.autoPlay);
     },
     onLeftRoute: () => {
@@ -157,6 +153,35 @@ function AppContent() {
     setEnabled: setDemoEnabled,
     setSpeed: setDemoSpeed,
   };
+
+  // «Прослушано» — когда рассказ дослушан хотя бы до LISTENED_SHARE.
+  // После смены точки плеер может ещё раз прислать позицию прошлой записи —
+  // поэтому считаем, только увидев начало новой (armed).
+  const listenRef = useRef({ index: -1, armed: false });
+
+  useEffect(() => {
+    const { currentIndex, currentTime, duration, playing } = audio;
+    const listen = listenRef.current;
+
+    if (listen.index !== currentIndex) {
+      listen.index = currentIndex;
+      listen.armed = false;
+    }
+    if (!listen.armed) {
+      if (currentTime > 2) return;
+      listen.armed = true;
+    }
+
+    if (
+      playing &&
+      !demoEnabled &&
+      duration > 0 &&
+      currentTime / duration >= LISTENED_SHARE &&
+      !completedRef.current.includes(currentIndex)
+    ) {
+      setProgress([...completedRef.current, currentIndex]);
+    }
+  }, [audio.currentIndex, audio.currentTime, audio.duration, audio.playing, demoEnabled]);
 
   const navigation = useNavigation(tracking);
 

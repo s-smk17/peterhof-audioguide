@@ -182,7 +182,7 @@ export default function GuideScreen({
 
           {completed.includes(currentIndex) && (
             <View style={styles.donePill}>
-              <Text style={styles.doneText}>✓ ПРОЙДЕНО</Text>
+              <Text style={styles.doneText}>✓ ПРОСЛУШАНО</Text>
             </View>
           )}
         </View>

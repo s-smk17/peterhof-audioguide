@@ -140,7 +140,7 @@ def GuideScreen(
                 padding=ft.Padding.symmetric(horizontal=10, vertical=6),
                 border_radius=100,
                 bgcolor=colors.fill,
-                content=Label("✓ ПРОЙДЕНО", colors.success, size=9, spacing=1),
+                content=Label("✓ ПРОСЛУШАНО", colors.success, size=9, spacing=1),
             )
         )
 

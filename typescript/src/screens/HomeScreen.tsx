@@ -185,7 +185,7 @@ export default function HomeScreen({
         <View>
           <Text style={styles.sectionTitle}>Ваш прогресс</Text>
           <Text style={styles.sectionSubtitle}>
-            {completed.length} из {routePoints.length} точек
+            Прослушано {completed.length} из {routePoints.length}
           </Text>
         </View>
 

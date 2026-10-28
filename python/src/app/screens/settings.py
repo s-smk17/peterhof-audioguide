@@ -165,7 +165,7 @@ def SettingsScreen(
                 content=ft.Column(
                     [
                         title("Сбросить весь прогресс?"),
-                        description("Отметки о пройденных точках удалятся"),
+                        description("Отметки «прослушано» у всех точек удалятся"),
                         ft.Row(
                             [
                                 ft.Container(

@@ -81,7 +81,10 @@ export function useSettings() {
   return useContext(SettingsContext);
 }
 
-// Пройденные точки — отдельно, чтобы прогресс переживал перезапуск
+/** Точка считается прослушанной, когда рассказ дослушан хотя бы до этой доли */
+export const LISTENED_SHARE = 0.8;
+
+// Прослушанные точки — отдельно, чтобы прогресс переживал перезапуск
 const PROGRESS_KEY = 'progress:v1';
 
 export async function loadProgress(): Promise<number[]> {
