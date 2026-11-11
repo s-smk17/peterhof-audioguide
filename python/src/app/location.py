@@ -1,5 +1,7 @@
 """GPS: разрешения, режим работы и поток отметок для RouteTracker."""
 
+import asyncio
+
 import flet as ft
 import flet_geolocator as ftg
 
@@ -9,6 +11,13 @@ Status = ftg.GeolocatorPermissionStatus
 
 NOTIFICATION_TITLE = "Аудиогид Петергоф"
 NOTIFICATION_TEXT = "Следим за маршрутом 343Э, чтобы вовремя начать рассказ"
+
+# В браузере (особенно на компьютере и с VPN) точный GPS может не отвечать:
+# место определяется по Wi‑Fi и IP через сервер геолокации, который VPN
+# блокирует. Ждём точную отметку недолго, потом просим грубую, потом сдаёмся
+# (режим «unavailable»), но слежение не останавливаем — отметка может прийти.
+WEB_PRECISE_WAIT_SECONDS = 10
+WEB_COARSE_WAIT_SECONDS = 30
 
 
 class LocationService:
@@ -20,6 +29,10 @@ class LocationService:
         self._geo = ftg.Geolocator()
         self.suspended = False
         """Идёт демо-поездка: отметки настоящего GPS не нужны"""
+        self._run = 0
+        """Номер запуска: устаревшие ожидания (после «Повторить») ничего не меняют"""
+        self._work_mode = "foreground"
+        """Режим, в который возвращаемся, когда координаты наконец пришли"""
 
     @property
     def _state(self):
@@ -31,6 +44,9 @@ class LocationService:
     def _handle(self, p: ftg.GeolocatorPosition) -> None:
         if self.suspended or p.latitude is None or p.longitude is None:
             return
+        if self._state.mode == "unavailable":
+            # Координаты наконец пришли
+            self._state.mode = self._work_mode
         self._tracker.handle_location(p.latitude, p.longitude, p.accuracy, p.speed)
 
     def _on_error(self, e) -> None:
@@ -41,6 +57,33 @@ class LocationService:
             self._state.mode = "disabled"
         elif "denied" in message:
             self._state.mode = "denied"
+        elif self._page.web and self._state.position is None:
+            # Ошибка определения места (тайм-аут, «position unavailable»)
+            asyncio.ensure_future(self._fallback_to_coarse(self._run))
+
+    async def _fallback_to_coarse(self, run: int) -> None:
+        """Грубое определение места (Wi‑Fi/IP) вместо точного GPS."""
+        if run != self._run or self.suspended or self._state.position is not None:
+            return
+        if self._state.mode in ("denied", "disabled"):
+            return
+        self._geo.configuration = ftg.GeolocatorWebConfiguration(
+            accuracy=ftg.GeolocatorPositionAccuracy.LOW,
+            maximum_age=ft.Duration(seconds=60),
+        )
+        try:
+            self._geo.update()
+        except Exception:
+            pass
+
+    async def _watch_web(self, run: int) -> None:
+        """Следим, пришла ли хоть одна отметка; иначе показываем «не определено»."""
+        await asyncio.sleep(WEB_PRECISE_WAIT_SECONDS)
+        await self._fallback_to_coarse(run)
+        await asyncio.sleep(WEB_COARSE_WAIT_SECONDS)
+        if run == self._run and not self.suspended and self._state.position is None:
+            if self._state.mode == "foreground":
+                self._state.mode = "unavailable"
 
     def _configuration(self, status: Status) -> tuple[ftg.GeolocatorConfiguration, str]:
         """Максимальная точность: в автобусе нужны частые и точные отметки."""
@@ -95,6 +138,8 @@ class LocationService:
             return
         state = self._state
         state.mode = "starting"
+        self._run += 1
+        run = self._run
 
         def set_mode(mode: str) -> None:
             # Пока ждали ответа, могли включить демо-поездку — её режим не трогаем
@@ -134,6 +179,9 @@ class LocationService:
             self._geo.on_error = self._on_error
             self._geo.update()
             state.mode = mode
+            self._work_mode = mode
+            if self._page.web:
+                asyncio.ensure_future(self._watch_web(run))
         except Exception as error:
             if self.suspended:
                 return

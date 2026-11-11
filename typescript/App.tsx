@@ -186,7 +186,9 @@ function AppContent() {
   const navigation = useNavigation(tracking);
 
   const homeAlert =
-    tracking.mode === 'denied' || tracking.mode === 'disabled'
+    tracking.mode === 'denied' ||
+    tracking.mode === 'disabled' ||
+    tracking.mode === 'unavailable'
       ? colors.danger
       : tracking.status === 'off-route'
         ? colors.warn

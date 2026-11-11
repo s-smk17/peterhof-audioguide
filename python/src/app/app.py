@@ -39,7 +39,7 @@ def AppContent(
 
     home_alert = (
         colors.danger
-        if tracking.mode in ("denied", "disabled")
+        if tracking.mode in ("denied", "disabled", "unavailable")
         else colors.warn
         if tracking.status == "off-route"
         else None

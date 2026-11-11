@@ -41,6 +41,13 @@ def gps_mode(mode: str, web: bool) -> tuple[str, str, bool]:
             else "Включите геолокацию в настройках телефона",
             False,
         )
+    if mode == "unavailable":
+        return (
+            "Не определено",
+            "Координаты не пришли. Отключите VPN или включите геолокацию в системе, "
+            "затем нажмите «Повторить» на главной",
+            False,
+        )
     if mode == "demo":
         return "Демо", "Идёт демо-поездка — настоящий GPS выключен", True
     return "…", "Запускаем GPS", True

@@ -114,6 +114,12 @@ const GPS_MODE: Record<
       : 'Включите геолокацию в настройках телефона',
     ok: false,
   },
+  unavailable: {
+    value: 'Не определено',
+    description:
+      'Координаты не пришли. Отключите VPN или включите геолокацию в системе, затем нажмите «Повторить» на главной',
+    ok: false,
+  },
 };
 
 export default function SettingsScreen({

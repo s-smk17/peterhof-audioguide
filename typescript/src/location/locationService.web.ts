@@ -19,7 +19,12 @@ export function subscribeToLocation(listener: Listener) {
   };
 }
 
-export type TrackingMode = 'background' | 'foreground' | 'denied' | 'disabled';
+export type TrackingMode =
+  | 'background'
+  | 'foreground'
+  | 'denied'
+  | 'disabled'
+  | 'unavailable'; // разрешено, но координаты не пришли (например, мешает VPN)
 
 export type TrackingResult = {
   mode: TrackingMode;
@@ -43,11 +48,27 @@ function toLocationObject(position: GeolocationPosition): LocationObject {
   };
 }
 
-const OPTIONS: PositionOptions = {
+// Сначала просим точный GPS. С VPN и на компьютере без GPS браузер определяет
+// место по Wi‑Fi и IP через сервер геолокации, а VPN его блокирует — тогда
+// высокая точность даёт ошибку. Запасной вариант: грубое определение,
+// дольше ждём и берём чуть более старую отметку.
+const PRECISE: PositionOptions = {
   enableHighAccuracy: true,
   maximumAge: 2000,
-  timeout: 20_000,
+  timeout: 10_000,
 };
+
+const COARSE: PositionOptions = {
+  enableHighAccuracy: false,
+  maximumAge: 60_000,
+  timeout: 30_000,
+};
+
+function getPosition(geolocation: Geolocation, options: PositionOptions) {
+  return new Promise<GeolocationPosition | GeolocationPositionError>((resolve) =>
+    geolocation.getCurrentPosition(resolve, resolve, options)
+  );
+}
 
 let watchId: number | null = null;
 
@@ -63,28 +84,37 @@ export async function startTracking(): Promise<TrackingResult> {
   stopWatch();
 
   // Первая отметка заодно показывает запрос разрешения
-  const first = await new Promise<GeolocationPosition | GeolocationPositionError>(
-    (resolve) => geolocation.getCurrentPosition(resolve, resolve, OPTIONS)
-  );
+  let options = PRECISE;
+  let first = await getPosition(geolocation, options);
+
+  if ('code' in first && first.code !== first.PERMISSION_DENIED) {
+    // Точное определение не вышло — пробуем грубое
+    options = COARSE;
+    first = await getPosition(geolocation, options);
+  }
+
+  let received = false;
 
   if ('code' in first) {
     if (first.code === first.PERMISSION_DENIED) {
       return { mode: 'denied', approximate: false };
     }
-    // Таймаут или нет сигнала — всё равно следим дальше
   } else {
+    received = true;
     emit(toLocationObject(first));
   }
 
+  // Слежение продолжаем и после неудачи: отметка может прийти позже
+  // (тогда режим сам вернётся из «не определено» в рабочий)
   watchId = geolocation.watchPosition(
     (position) => emit(toLocationObject(position)),
     () => {},
-    OPTIONS
+    options
   );
 
   keepScreenOn();
 
-  return { mode: 'foreground', approximate: false };
+  return { mode: received ? 'foreground' : 'unavailable', approximate: false };
 }
 
 function stopWatch() {

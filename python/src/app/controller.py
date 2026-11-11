@@ -119,7 +119,7 @@ class Controller:
     async def on_resume(self) -> None:
         # Вернулись в приложение (например, из настроек, где включили
         # геолокацию) — пробуем снова, без нажатия «Повторить»
-        if self.tracking.mode in ("denied", "disabled"):
+        if self.tracking.mode in ("denied", "disabled", "unavailable"):
             await self.location.start()
 
     async def retry_gps(self) -> None:

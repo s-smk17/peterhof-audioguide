@@ -36,6 +36,12 @@ export function getRouteBadge(
         color: colors.danger,
         hint: 'Включите геолокацию в настройках телефона',
       };
+    case 'unavailable':
+      return {
+        label: 'МЕСТО НЕ ОПРЕДЕЛЕНО',
+        color: colors.danger,
+        hint: 'Браузер не получил координаты. Отключите VPN или включите геолокацию в системе и нажмите «Повторить». Можно пока попробовать демо-поездку',
+      };
   }
 
   if (tracking.status === 'off-route') {
@@ -57,7 +63,10 @@ export function getRouteBadge(
   return {
     label: 'ПОИСК GPS…',
     color: colors.muted,
-    hint: 'Определяем, где вы находитесь',
+    hint:
+      tracking.accuracy != null
+        ? `Сигнал слабый: точность ±${Math.round(tracking.accuracy)} м. С VPN и на компьютере место определяется грубо`
+        : 'Определяем, где вы находитесь',
   };
 }
 
@@ -89,7 +98,10 @@ export default function HomeScreen({
   const [mapTouched, setMapTouched] = useState(false);
 
   const badge = getRouteBadge(tracking, colors);
-  const needsRetry = tracking.mode === 'denied' || tracking.mode === 'disabled';
+  const needsRetry =
+    tracking.mode === 'denied' ||
+    tracking.mode === 'disabled' ||
+    tracking.mode === 'unavailable';
   const progress = routePoints.length ? completed.length / routePoints.length : 0;
   const point = routePoints[audio.currentIndex];
   // Пока идёт рассказ — подсказываем, в какое окно смотреть

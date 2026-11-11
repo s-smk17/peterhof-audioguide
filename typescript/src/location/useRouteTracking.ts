@@ -113,6 +113,12 @@ export function useRouteTracking(handlers: Handlers, demoSession: number | null 
     // Во время демо-поездки отметки настоящего GPS не учитываем, и наоборот
     if (fromDemo !== demoRef.current) return;
 
+    // Координаты наконец пришли — «место не определено» больше не показываем
+    if (modeRef.current === 'unavailable') {
+      modeRef.current = 'foreground';
+      setState((previous) => ({ ...previous, mode: 'foreground', approximate: false }));
+    }
+
     const { latitude, longitude } = location.coords;
     const accuracy = location.coords.accuracy ?? MAX_ACCURACY_METERS;
     const { offset, along } = projectOnRoute(latitude, longitude);
@@ -235,7 +241,9 @@ export function useRouteTracking(handlers: Handlers, demoSession: number | null 
     const subscription = AppState.addEventListener('change', (appState) => {
       if (
         appState === 'active' &&
-        (modeRef.current === 'denied' || modeRef.current === 'disabled')
+        (modeRef.current === 'denied' ||
+          modeRef.current === 'disabled' ||
+          modeRef.current === 'unavailable')
       ) {
         start();
       }

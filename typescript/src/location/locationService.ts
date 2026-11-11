@@ -34,7 +34,8 @@ export type TrackingMode =
   | 'background' // работает и с выключенным экраном
   | 'foreground' // только пока приложение открыто
   | 'denied'
-  | 'disabled'; // геолокация выключена в системе
+  | 'disabled' // геолокация выключена в системе
+  | 'unavailable'; // разрешено, но координаты не пришли (например, мешает VPN)
 
 export type TrackingResult = {
   mode: TrackingMode;

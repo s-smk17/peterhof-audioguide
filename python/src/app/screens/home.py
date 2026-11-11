@@ -23,6 +23,13 @@ def route_badge(tracking: TrackingState, colors: Palette) -> tuple[str, str, str
         return "НЕТ ДОСТУПА К GPS", colors.danger, "Разрешите доступ к геолокации, чтобы гид работал сам"
     if tracking.mode == "disabled":
         return "GPS ВЫКЛЮЧЕН", colors.danger, "Включите геолокацию в настройках телефона"
+    if tracking.mode == "unavailable":
+        return (
+            "МЕСТО НЕ ОПРЕДЕЛЕНО",
+            colors.danger,
+            "Браузер не получил координаты. Отключите VPN или включите геолокацию "
+            "в системе и нажмите «Повторить». Можно пока попробовать демо-поездку",
+        )
     if tracking.status == "off-route":
         return (
             "ВНЕ МАРШРУТА",
@@ -31,6 +38,13 @@ def route_badge(tracking: TrackingState, colors: Palette) -> tuple[str, str, str
         )
     if tracking.status == "on-route":
         return "НА МАРШРУТЕ", colors.success, "Рассказ начнётся сам у каждой точки"
+    if tracking.accuracy is not None:
+        return (
+            "ПОИСК GPS…",
+            colors.muted,
+            f"Сигнал слабый: точность ±{round(tracking.accuracy)} м. "
+            "С VPN и на компьютере место определяется грубо",
+        )
     return "ПОИСК GPS…", colors.muted, "Определяем, где вы находитесь"
 
 
@@ -54,7 +68,7 @@ def HomeScreen(
 ):
     colors = use_colors()
     label, color, hint = route_badge(tracking, colors)
-    needs_retry = tracking.mode in ("denied", "disabled")
+    needs_retry = tracking.mode in ("denied", "disabled", "unavailable")
     completed = progress.completed
     share = len(completed) / len(ROUTE_POINTS) if ROUTE_POINTS else 0
     point = ROUTE_POINTS[audio.current_index]
