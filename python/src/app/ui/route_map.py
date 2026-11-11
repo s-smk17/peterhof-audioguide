@@ -298,9 +298,10 @@ def RouteMap(
             [
                 the_map,
                 # Нажатие на маленькую карту открывает её на весь экран
-                ft.Container(
-                    expand=True,
-                    on_click=(lambda _: on_expand()) if (on_expand and not fullscreen) else None,
+                *(
+                    [ft.Container(expand=True, on_click=lambda _: on_expand())]
+                    if on_expand and not fullscreen
+                    else []
                 ),
                 ft.Column(buttons, spacing=8, top=10, right=10),
                 ft.Container(
