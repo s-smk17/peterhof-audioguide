@@ -17,7 +17,7 @@ import { makeStyles, useTheme } from '../theme';
 import type { RouteMapProps as Props } from './routeMapTypes';
 
 // Тайлы — бесплатные векторные карты OpenFreeMap (данные OpenStreetMap),
-// стиль берётся из темы: светлый positron или тёмный dark
+// стиль берётся из темы (сейчас цветной liberty для обеих тем)
 
 export function boundsOf(coordinates: [number, number][]): LngLatBounds {
   let west = Infinity;
@@ -178,9 +178,9 @@ export default function RouteMap({
         attribution
         attributionPosition={{ bottom: 6, left: 8 }}
         compass={fullscreen}
-        dragPan
-        touchZoom
-        doubleTapZoom
+        dragPan={fullscreen}
+        touchZoom={fullscreen}
+        doubleTapZoom={fullscreen}
         touchRotate={false}
         touchPitch={false}
         onRegionWillChange={(event) => {
@@ -292,6 +292,11 @@ export default function RouteMap({
           </Marker>
         )}
       </Map>
+
+      {/* Маленькая карта не двигается: нажатие в любом месте открывает её на весь экран */}
+      {!fullscreen && onExpand && (
+        <Pressable style={StyleSheet.absoluteFill} onPress={onExpand} />
+      )}
 
       <View style={styles.buttons}>
         {!follow && (

@@ -30,7 +30,7 @@
 (регистр и «ё» не важны).
 
 **Как мы разрабатывали приложение с нейросетью** — пошаговый план со схемами
-(для преподавателя и школьников): [docs/development-plan.md](../docs/development-plan.md)
+(для преподавателя и школьников): [docs/development-plan.md](../docs/development-plan.md); для бесплатных нейросетей — [docs/step-by-step.md](../docs/step-by-step.md)
 
 ---
 
@@ -40,7 +40,7 @@
 | --- | --- |
 | Язык | Python 3.10+ |
 | Интерфейс | Flet 1.0 — компоненты с хуками (`@ft.component`, `use_state`), как React |
-| Карта | `flet-map` (flutter_map), подложка Esri Light/Dark Gray (данные OpenStreetMap и др.) |
+| Карта | `flet-map` (flutter_map), цветная подложка Esri World Street Map (данные OpenStreetMap и др.) |
 | GPS | `flet-geolocator`; на Android — служба с уведомлением, работает с выключенным экраном |
 | Звук | `flet-audio` (audioplayers) |
 | Хранение настроек | `SharedPreferences` (в браузере — localStorage) |
@@ -125,7 +125,7 @@ python3 -m venv .venv
 - **Экран блокировки:** в версии на TypeScript есть карточка плеера на экране
   блокировки; во Flet 1.0 такой возможности у плеера пока нет. Звук при этом
   продолжает играть в фоне.
-- **Карта:** другая подложка, чем в TypeScript-версии (OpenFreeMap — только
+- **Карта:** другая подложка, чем в TypeScript-версии (цветной стиль liberty от OpenFreeMap — только
   векторные тайлы, а карта Flet показывает растровые), поэтому выглядит немного иначе.
 - Голос в записях пока синтезированный, английских записей нет.
 

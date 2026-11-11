@@ -280,6 +280,8 @@ export default function RouteMap({
       bounds: ROUTE_BOUNDS as LngLatBoundsLike,
       fitBoundsOptions: { padding: 30 },
       attributionControl: { compact: true },
+      // Маленькая карта не двигается: нажатие открывает её на весь экран
+      interactive: fullscreen,
       dragRotate: false,
       pitchWithRotate: false,
       touchPitch: false,
@@ -435,6 +437,10 @@ export default function RouteMap({
       onTouchCancel={() => onInteractionChange?.(false)}
     >
       <View ref={container} style={styles.map} />
+
+      {!fullscreen && onExpand && (
+        <Pressable style={styles.map} onPress={onExpand} />
+      )}
 
       <View style={styles.buttons}>
         {!follow && (

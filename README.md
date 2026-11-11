@@ -15,7 +15,7 @@
 (`.github/workflows/`).
 
 Как мы разрабатывали приложение с нейросетью — пошаговый план со схемами:
-[docs/development-plan.md](docs/development-plan.md)
+[docs/development-plan.md](docs/development-plan.md), подробный пошаговый план для бесплатных нейросетей — [docs/step-by-step.md](docs/step-by-step.md)
 
 ## Лицензия
 

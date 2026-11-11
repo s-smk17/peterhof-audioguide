@@ -58,7 +58,7 @@ export const darkPalette: Palette = {
   glowA: 'rgba(59, 110, 200, 0.09)',
   glowB: 'rgba(212, 163, 89, 0.05)',
   glowC: 'rgba(42, 157, 143, 0.035)',
-  mapStyle: 'https://tiles.openfreemap.org/styles/dark',
+  mapStyle: 'https://tiles.openfreemap.org/styles/liberty',
   mapBg: '#111827',
 };
 
@@ -84,7 +84,7 @@ export const lightPalette: Palette = {
   glowA: 'rgba(59, 110, 200, 0.07)',
   glowB: 'rgba(212, 163, 89, 0.07)',
   glowC: 'rgba(42, 157, 143, 0.04)',
-  mapStyle: 'https://tiles.openfreemap.org/styles/positron',
+  mapStyle: 'https://tiles.openfreemap.org/styles/liberty',
   mapBg: '#E9EDF2',
 };
 

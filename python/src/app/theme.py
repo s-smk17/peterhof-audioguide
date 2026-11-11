@@ -63,7 +63,7 @@ DARK = Palette(
     glow_a=rgba(59, 110, 200, 0.09),
     glow_b=rgba(212, 163, 89, 0.05),
     glow_c=rgba(42, 157, 143, 0.035),
-    map_tiles="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+    map_tiles="https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",
     map_bg="#111827",
 )
 
@@ -89,7 +89,7 @@ LIGHT = Palette(
     glow_a=rgba(59, 110, 200, 0.07),
     glow_b=rgba(212, 163, 89, 0.07),
     glow_c=rgba(42, 157, 143, 0.04),
-    map_tiles="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+    map_tiles="https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",
     map_bg="#E9EDF2",
 )
 

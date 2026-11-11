@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useState } from 'react';
-import { PanResponder, Pressable, Text, View } from 'react-native';
+import { PanResponder, Pressable, StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle, Polyline } from 'react-native-svg';
 
 import { routePoints } from '../data/route';
@@ -186,7 +186,7 @@ export default function SchematicMap({
       style={[styles.container, style]}
       onLayout={(event) => setSize(event.nativeEvent.layout)}
     >
-      <View style={styles.canvas} {...responder.panHandlers}>
+      <View style={styles.canvas} {...(fullscreen ? responder.panHandlers : {})}>
         {ready && (
           <Svg width={size.width} height={size.height}>
             <Polyline
@@ -293,23 +293,32 @@ export default function SchematicMap({
         </Text>
       </View>
 
+      {/* Маленькая схема не двигается: нажатие открывает её на весь экран */}
+      {!fullscreen && onExpand && (
+        <Pressable style={StyleSheet.absoluteFill} onPress={onExpand} />
+      )}
+
       <View style={styles.buttons}>
         {onExpand && (
           <Pressable style={styles.mapButton} onPress={onExpand}>
             <Text style={styles.mapButtonText}>⤢</Text>
           </Pressable>
         )}
-        {!following && (
+        {fullscreen && !following && (
           <Pressable style={styles.mapButton} onPress={() => setView(HOME)}>
             <Text style={styles.mapButtonText}>⌖</Text>
           </Pressable>
         )}
-        <Pressable style={styles.mapButton} onPress={() => zoomBy(1.5)}>
-          <Text style={styles.mapButtonText}>+</Text>
-        </Pressable>
-        <Pressable style={styles.mapButton} onPress={() => zoomBy(1 / 1.5)}>
-          <Text style={styles.mapButtonText}>−</Text>
-        </Pressable>
+        {fullscreen && (
+          <Pressable style={styles.mapButton} onPress={() => zoomBy(1.5)}>
+            <Text style={styles.mapButtonText}>+</Text>
+          </Pressable>
+        )}
+        {fullscreen && (
+          <Pressable style={styles.mapButton} onPress={() => zoomBy(1 / 1.5)}>
+            <Text style={styles.mapButtonText}>−</Text>
+          </Pressable>
+        )}
       </View>
     </View>
   );

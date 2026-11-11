@@ -17,8 +17,8 @@ from app.walking import WalkingRoute
 LatLon = tuple[float, float]
 
 ATTRIBUTION = "© участники OpenStreetMap, Esri"
-MAX_TILE_ZOOM = 16
-"""Глубже у подложки Esri тайлов нет — дальше карта просто увеличивает их"""
+MAX_TILE_ZOOM = 19
+"""Глубже у цветной подложки Esri World Street Map тайлов нет"""
 
 # Человек сам двигает карту — перестаём следовать за ним
 USER_GESTURES = {
@@ -245,8 +245,11 @@ def RouteMap(
         bgcolor=colors.map_bg,
         initial_camera_fit=ftm.CameraFit(bounds=ROUTE_BOUNDS, padding=ft.Padding.all(30)),
         max_zoom=18,
+        # Маленькая карта не двигается; на весь экран — всё, кроме поворота
         interaction_configuration=ftm.InteractionConfiguration(
-            flags=ftm.InteractionFlag.ALL & ~ftm.InteractionFlag.ROTATE
+            flags=(ftm.InteractionFlag.ALL & ~ftm.InteractionFlag.ROTATE)
+            if fullscreen
+            else ftm.InteractionFlag.NONE
         ),
         on_event=on_event,
         on_size_change=on_size,
@@ -263,7 +266,7 @@ def RouteMap(
     )
 
     buttons = []
-    if not follow:
+    if fullscreen and not follow:
         buttons.append(
             RoundButton(
                 ft.Icons.MY_LOCATION_ROUNDED,
@@ -294,6 +297,11 @@ def RouteMap(
         content=ft.Stack(
             [
                 the_map,
+                # Нажатие на маленькую карту открывает её на весь экран
+                ft.Container(
+                    expand=True,
+                    on_click=(lambda _: on_expand()) if (on_expand and not fullscreen) else None,
+                ),
                 ft.Column(buttons, spacing=8, top=10, right=10),
                 ft.Container(
                     left=8,
